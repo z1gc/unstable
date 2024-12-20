@@ -1,0 +1,12 @@
+actions:
+  - action: file.copy
+    from: make.conf
+    to: "{{ variables.root }}/etc/portage/make.conf"
+    template: true
+
+  # Just want to ignore the errors:
+  - action: command.run
+    command: bash
+    args:
+      - -c
+      - "rm -rfv {{ variables.root }}/etc/portage/binrepos.conf || true"

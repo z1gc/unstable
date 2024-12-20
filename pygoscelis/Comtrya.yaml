@@ -1,0 +1,20 @@
+# Here will go to `variables.*`:
+# This is a TEST config for a dry-run, it places all files to /tmp/comtrya-root,
+# after run, you can check that directory, and if everything is fine, you can
+# use the actual config file `Doomtrya.yaml`, it dooms.
+#
+# cd <where/we/are>
+# comtrya -c Doomtrya.yaml -d portage ...
+
+variables:
+  root: "/tmp/comtrya-root"
+
+# @see https://github.com/comtrya/comtrya/blob/main/examples/Comtrya.yaml
+# TODO: Comtrya doesn't support template here, because the template engine must
+#       be initialized after the Comtrya.yaml is read. Seems no way?
+#       We can make a small backdoor of this file, perhaps.
+# include_variables:
+#   - "file+yaml:use/{{ os.hostname }}.yaml"
+
+# I have no that much of machines to do a very small granularity USE flags like
+# what Gentoo did. Using the `os.hostname` is quite well.
