@@ -100,3 +100,8 @@ EOF
 
 # Apply!
 sudo ./comtrya -v -d $MANIFEST apply -m "$MACHINE"
+
+echo "Next step (run either one manually):"
+echo "    => nixos-install"
+echo " or => nixos-rebuild switch"
+echo "(Don't forget to check your \"/etc/nixos\"!)"
