@@ -1,5 +1,11 @@
 actions:
     - action: file.copy
+      from: "hw-{{ variables.machine }}.nix"
+      to: "{{ variables.root }}/etc/nixos/hardware-configuration.nix"
+      owned_by_user: root
+      owned_by_group: root
+
+    - action: file.copy
       from: configuration.nix
       to: "{{ variables.root }}/etc/nixos/configuration.nix"
       template: true

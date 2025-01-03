@@ -10,6 +10,13 @@
       ./hardware-configuration.nix
     ];
 
+  # https://nixos.wiki/wiki/Btrfs
+  fileSystems = {
+    "/".options = [ "compress=zstd" ];
+    "/home".options = [ "compress=zstd" ];
+    "/nix".options = [ "compress=zstd" "noatime" ];
+  };
+
   # systemd-boot
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.efiSysMountPoint = "/efi";

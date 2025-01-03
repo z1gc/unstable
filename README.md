@@ -12,4 +12,7 @@ Managed by [comtrya](https://github.com/comtrya/comtrya),
 
 # Aha, new stuff
 ./apply.sh evil /mnt
+
+# Or via network
+curl -L https://ptr.ffi.fyi/unstable | bash -s -- evil /mnt
 ```

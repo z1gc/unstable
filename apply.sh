@@ -11,10 +11,20 @@ if [[ "$MACHINE" == "" ]]; then
     exit 1
 fi
 
+# To here, or to tmp (TODO: cleanup?):
+manifest=nixos
+cd "$(dirname "${BASH_SOURCE[0]}")"
+if [[ ! -d .git ]]; then
+    mkdir -p /tmp/unstable
+    cd /tmp/unstable
+    manifest=https://github.com/z1gc/unstable:nixos
+fi
+
 # Check comtrya:
 if [[ ! -f comtrya ]]; then
+    # shellcheck disable=SC2016
     curl -fsSL https://get.comtrya.dev | sed 's/$BINLOCATION/./g' | bash || true
-    if ! ./comtrya --version; then
+    if ! ./comtrya version; then
         rm -f ./comtrya
         echo "wrong binary, please retry..."
         exit 1
@@ -29,4 +39,4 @@ variables:
 EOF
 
 # Apply!
-sudo ./comtrya -v -d nixos apply -m "$MACHINE"
+sudo ./comtrya -v -d $manifest apply -m "$MACHINE"
