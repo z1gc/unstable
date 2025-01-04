@@ -8,11 +8,12 @@ rustPlatform.buildRustPackage rec {
   pname = "comtrya";
   version = "unstable";
 
+  # have to comment out the hash if the repo is updated (version unchanged):
   src = fetchFromGitHub {
     owner = "z1gc";
     repo = "${pname}";
-    rev = "fa5cd169ba0081c9ae0ca379dc2dd1d22e3fa118";
-    hash = "sha256-Vy2xKgz1Dp/18D6ucS1oT59b2HffbV6IX4W88SRYU2Q=";
+    rev = "0826a2448da8cecbf48ec4fc592ec535d9baf779";
+    hash = "sha256-dihTrnEl/Ws+7jzxwRx+tQ5RYcdlMo7IaVy07DhoD7Y=";
   };
 
   cargoHash = "sha256-ezQ6r+dL9qk1wos31uhzkDv5AAnSFdtZjWKyHXOlOYU=";

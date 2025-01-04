@@ -15,4 +15,7 @@ Managed by [comtrya](https://github.com/comtrya/comtrya),
 
 # Or via network
 curl -L https://ptr.ffi.fyi/unstable | bash -s -- evil /mnt
+
+# Full wipe
+./apply.sh -p /dev/nvme0n1 evil /mnt
 ```

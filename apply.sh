@@ -5,6 +5,7 @@ set -ue
 DISK=
 PARTITION=
 REMOTE=false
+YES=false
 
 # Arguments parsing:
 while true; do
@@ -12,6 +13,10 @@ while true; do
     "-p")
         DISK="${2:-}"
         shift 2
+    ;;
+    "-y")
+        YES=true
+        shift 1
     ;;
     "-r")
         REMOTE=true
@@ -31,6 +36,7 @@ ROOT="${ROOT%/}"
 if [[ "$MACHINE" == "" ]]; then
     echo "$0 [OPTIONS] MACHINE [ROOT]"
     echo "    -p DISK    Partition the disk (DANGEROUS!)"
+    echo "    -y         Yes for all, don't even ask"
     echo "    -r         Test remote manifest (via git)"
     exit 1
 fi
@@ -71,10 +77,12 @@ if [[ "$DISK" != "" ]]; then
         exit 1
     fi
 
-    read -p "The $DISK will be destroyed! Y? " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
+    if ! $YES; then
+        read -p "The $DISK will be destroyed! Y? " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            exit 1
+        fi
     fi
 fi
 
@@ -87,7 +95,7 @@ if $REMOTE || [[ ! -d .git ]]; then
 fi
 
 # Check comtrya:
-if ! sudo which comtrya; then
+if ! sudo which comtrya &> /dev/null; then
     sudo nix-channel --add https://github.com/z1gc/unstable/archive/main.tar.gz aptenodytes
     sudo -E nix-channel --update aptenodytes
     sudo -E nix-env -iA aptenodytes.comtrya
