@@ -16,6 +16,7 @@ let
         owner = "z1gc";
         repo = "helix";
         rev = "09e59e29725b66f55cf5d9be25268924f74004f5";
+        hash = "sha256-fsrR/5LuyLF+yVwwdP3WMjH0PplYwiqFd9irw/KKIy0=";
       };
     });
   });
@@ -29,13 +30,13 @@ in
   # https://stackoverflow.com/a/48838322
   nixpkgs.config = {
     packageOverrides = pkgs: {
-      aptenodytes = import aptenodytesChannel {
-        config = config.nixpkgs.config;
-      };
+      aptenodytes = import aptenodytesChannel {};
     };
   };
 
-  nixpkgs.overlays = [ overlay ]
+  nixpkgs.overlays = [ overlay ];
+  nix.settings.substituters =
+    [ "https://mirror.sjtu.edu.cn/nix-channels/store" ];
 
   # https://nixos.wiki/wiki/Btrfs
   fileSystems = {
@@ -50,9 +51,8 @@ in
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "{{ variables.machine }}";
-  # Pick only one of the below networking options.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  # networking.wireless.enable = true;
+  networking.networkmanager.enable = true;
 
   # Set your time zone.
   time.timeZone = "Asia/Shanghai";
