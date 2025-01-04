@@ -50,6 +50,9 @@ if [[ "$DISK" != "" ]]; then
 
     # https://www.kernel.org/doc/html/latest/admin-guide/devices.html
     case "$MAJOR" in
+        "8")
+            # /dev/sda1
+        ;;
         "253")
             # /dev/vda1
         ;;
