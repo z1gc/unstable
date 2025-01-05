@@ -10,7 +10,7 @@ fi
 
 # For nix, it's better not to use -E, which will pollutes the $HOME or other
 # envs. We keep a workaround to pass some envs here, like `env_keep` in sudo.
-if [[ "$HTTPS_PROXY" != "" ]]; then
+if [[ "${HTTPS_PROXY:-}" != "" ]]; then
     SUDO+=" HTTPS_PROXY=$HTTPS_PROXY"
 fi
 
