@@ -4,6 +4,9 @@
   rustPlatform,
 }:
 
+# To rebuild: rm result && nix-collect-garbage
+# Then build: nix-build . -A comtrya
+# TODO: better way of rebuilding? These steps will re-copy the dependencies.
 rustPlatform.buildRustPackage rec {
   pname = "comtrya";
   version = "unstable";
@@ -12,8 +15,8 @@ rustPlatform.buildRustPackage rec {
   src = fetchFromGitHub {
     owner = "z1gc";
     repo = "${pname}";
-    rev = "0826a2448da8cecbf48ec4fc592ec535d9baf779";
-    hash = "sha256-dihTrnEl/Ws+7jzxwRx+tQ5RYcdlMo7IaVy07DhoD7Y=";
+    rev = "f7baf7974fc0d47327121eb547c0e55593609a72";
+    hash = "sha256-+/EQYS2J0awdjmqJQvKwfJkRLt/lbtMwJLDsW38A6M8=";
   };
 
   cargoHash = "sha256-ezQ6r+dL9qk1wos31uhzkDv5AAnSFdtZjWKyHXOlOYU=";

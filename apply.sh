@@ -16,6 +16,7 @@ fi
 
 DISK=
 PARTITION=
+WIPE=false
 REMOTE=false
 YES=false
 
@@ -26,11 +27,15 @@ while true; do
         DISK="${2:-}"
         shift 2
     ;;
+    "-w")
+        WIPE=true
+        shift 1
+    ;;
     "-y")
         YES=true
         shift 1
     ;;
-    "-r")
+    "-g")
         REMOTE=true
         shift 1
     ;;
@@ -47,9 +52,10 @@ ROOT="${ROOT%/}"
 
 if [[ "$MACHINE" == "" ]]; then
     echo "$0 [OPTIONS] MACHINE [ROOT]"
-    echo "    -p DISK    Partition the disk (DANGEROUS!)"
+    echo "    -p DISK    Mount the disk if is already set up"
+    echo "    -w         Partition the disk (DANGEROUS!)"
     echo "    -y         Yes for all, don't even ask"
-    echo "    -r         Test remote manifest (via git)"
+    echo "    -g         Test remote manifest via git"
     exit 1
 fi
 
@@ -125,6 +131,7 @@ variables:
   root: "$ROOT"
   disk: "$DISK"
   partition: "$PARTITION"
+  wipe: "$WIPE"
 EOF
 
 # Apply!

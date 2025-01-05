@@ -1,6 +1,6 @@
 actions:
   - action: command.run
-    where: '!variables.disk.is_empty'
+    where: '!variables.disk.is_empty && variables.wipe'
     command: parted
     args:
       - '{{ variables.disk }}'
@@ -13,7 +13,7 @@ actions:
       - mkpart root btrfs 16GiB 100%
     privileged: true
   - action: command.run
-    where: '!variables.disk.is_empty'
+    where: '!variables.disk.is_empty && variables.wipe'
     command: mkfs
     args:
       - -t
@@ -25,6 +25,7 @@ actions:
         - boot
         - '{{ variables.disk }}{{ variables.partition }}1'
       - - btrfs
+        - -f
         - '{{ variables.disk }}{{ variables.partition }}3'
     privileged: true
   # Not a huge fan of swap, just want to reduce the system pressure.
@@ -32,7 +33,7 @@ actions:
   # full disk encryption, or expand the /efi partition.
   # https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_storage_devices/getting-started-with-swap_managing-storage-devices
   - action: command.run
-    where: '!variables.disk.is_empty'
+    where: '!variables.disk.is_empty && variables.wipe'
     command: mkswap
     args:
       - -L
@@ -40,14 +41,14 @@ actions:
       - '{{ variables.disk }}{{ variables.partition }}2'
     privileged: true
   - action: command.run
-    where: '!variables.disk.is_empty && !variables.root.is_empty'
+    where: '!variables.disk.is_empty && !variables.root.is_empty && variables.wipe'
     command: mount
     args:
       - '{{ variables.disk }}{{ variables.partition }}3'
       - '{{ variables.root }}'
     privileged: true
   - action: command.run
-    where: '!variables.disk.is_empty && !variables.root.is_empty'
+    where: '!variables.disk.is_empty && !variables.root.is_empty && variables.wipe'
     command: btrfs
     args:
       - subvolume
@@ -60,7 +61,9 @@ actions:
     where: '!variables.disk.is_empty && !variables.root.is_empty'
     command: umount
     args:
+      - -R
       - '{{ variables.root }}'
+    ignore_errors: true
     privileged: true
   - action: command.run
     where: '!variables.disk.is_empty && !variables.root.is_empty'
@@ -90,7 +93,7 @@ actions:
       - '{{ variables.disk }}{{ variables.partition }}2'
     privileged: true
   - action: command.run
-    where: '!variables.disk.is_empty && !variables.root.is_empty'
+    where: '!variables.root.is_empty'
     command: nixos-generate-config
     args:
       - --root

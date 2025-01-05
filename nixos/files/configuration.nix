@@ -16,7 +16,7 @@ let
   overlay = (self: super: {
     # https://discourse.nixos.org/t/is-it-possible-to-override-cargosha256-in-buildrustpackage/4393/10
     # Rust is kind of "fancy":
-    helix = super.helix.override (prev: {
+    helix = super.unstable.helix.override (prev: {
       rustPlatform = prev.rustPlatform // {
         buildRustPackage = args: prev.rustPlatform.buildRustPackage (args // {
           patches = (prev.patches or []) ++ [
