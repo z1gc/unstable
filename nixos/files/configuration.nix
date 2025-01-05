@@ -35,6 +35,9 @@ in
   imports =
     [ # nixos-generate-config --show-hardware-config
       ./hardware-configuration.nix
+      # {% if variables.machine == "harm" %}
+      ./kernel-harm.nix
+      # {% endif %}
     ];
 
   # https://stackoverflow.com/a/48838322
