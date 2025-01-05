@@ -5,6 +5,9 @@
 { config, lib, pkgs, ... }:
 
 let
+  unstableChannel =
+    fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz;
+
   aptenodytesChannel =
     fetchTarball https://github.com/z1gc/unstable/archive/main.tar.gz;
 
@@ -37,6 +40,10 @@ in
   # https://stackoverflow.com/a/48838322
   nixpkgs.config = {
     packageOverrides = pkgs: {
+      unstable = import unstableChannel {
+        config = config.nixpkgs.config;
+      };
+
       aptenodytes = import aptenodytesChannel {};
     };
   };
@@ -117,9 +124,11 @@ in
   environment.systemPackages = with pkgs; [
     wget
     git
-    helix
 
     # Not in Stable:
+    unstable.helix
+
+    # Penguin!
     aptenodytes.comtrya
   ];
 
