@@ -96,6 +96,14 @@ actions:
       - --root
       - '{{ variables.root }}'
     privileged: true
+  - action: command.run
+    command: nix-channel
+    xargs:
+      - - --add
+        - https://channels.nixos.org/nixos-24.11
+        - nixos
+      - - --update
+    privileged: true
   - action: file.copy
     from: configuration.nix
     owned_by_group: root

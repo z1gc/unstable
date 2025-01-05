@@ -2,6 +2,18 @@
 
 set -ue
 
+SUDO="$(which sudo) env"
+if [[ "$SUDO" == " env" ]]; then
+    echo "Have no sudo!"
+    exit 1
+fi
+
+# For nix, it's better not to use -E, which will pollutes the $HOME or other
+# envs. We keep a workaround to pass some envs here, like `env_keep` in sudo.
+if [[ "$HTTPS_PROXY" != "" ]]; then
+    SUDO+=" HTTPS_PROXY=$HTTPS_PROXY"
+fi
+
 DISK=
 PARTITION=
 REMOTE=false
@@ -95,12 +107,12 @@ if $REMOTE || [[ ! -d .git ]]; then
 fi
 
 # Check comtrya:
-if ! sudo which comtrya &> /dev/null; then
-    sudo nix-channel --add https://github.com/z1gc/unstable/archive/main.tar.gz aptenodytes
-    sudo -E nix-channel --update aptenodytes
-    sudo -E nix-env -iA aptenodytes.comtrya
+if ! $SUDO which comtrya &> /dev/null; then
+    $SUDO nix-channel --add https://github.com/z1gc/unstable/archive/main.tar.gz aptenodytes
+    $SUDO nix-channel --update aptenodytes
+    $SUDO nix-env -iA aptenodytes.comtrya
 
-    if ! sudo comtrya version; then
+    if ! $SUDO comtrya version; then
         echo "Install comtrya failed, maybe you have solutions?"
         exit 1
     fi
@@ -116,9 +128,9 @@ variables:
 EOF
 
 # Apply!
-sudo -E comtrya -v -c .comtrya.yaml -d $MANIFEST apply -m "$MACHINE"
+$SUDO comtrya -v -c .comtrya.yaml -d $MANIFEST apply -m "$MACHINE"
 
 echo "Next step (run either one manually):"
-echo "    => nixos-install"
-echo " or => nixos-rebuild switch"
+echo "    => $SUDO nixos-install"
+echo " or => $SUDO nixos-rebuild switch --upgrade"
 echo "(Don't forget to check your \"$ROOT/etc/nixos\"!)"
