@@ -1,3 +1,6 @@
+# refs:
+# https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/rust/fetch-cargo-tarball/default.nix
+
 {
   lib,
   fetchFromGitHub,
@@ -7,6 +10,7 @@
 # To rebuild: rm result && nix-collect-garbage
 # Then build: nix-build . -A comtrya
 # TODO: better way of rebuilding? These steps will re-copy the dependencies.
+# You might want to `export NIX_CRATES_INDEX=<mirror_of_crates_io>` first.
 rustPlatform.buildRustPackage rec {
   pname = "comtrya";
   version = "git";
@@ -15,8 +19,8 @@ rustPlatform.buildRustPackage rec {
   src = fetchFromGitHub {
     owner = "z1gc";
     repo = "${pname}";
-    rev = "f7baf7974fc0d47327121eb547c0e55593609a72";
-    hash = "sha256-+/EQYS2J0awdjmqJQvKwfJkRLt/lbtMwJLDsW38A6M8=";
+    rev = "8c05cf81f35fa0e5faefe4ce3f61407725ad81d7";
+    hash = "sha256-D06qvKCaX7eRpNIHmyKOAFclVQvL+7/+V0290HR/Q9w=";
   };
 
   cargoHash = "sha256-ak2HnBpsuzq04uwOTDBTO8KRjajsLfyfY10SdrUX4qY=";
@@ -26,6 +30,6 @@ rustPlatform.buildRustPackage rec {
     description = "Configuration Management for Localhost / dotfiles";
     mainProgram = "comtrya";
     homepage = "https://github.com/comtrya/comtrya";
-    license = with licenses; [ mit ];
+    license = licenses.mit;
   };
 }

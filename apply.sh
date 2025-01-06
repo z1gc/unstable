@@ -131,12 +131,13 @@ variables:
   root: "$ROOT"
   disk: "$DISK"
   partition: "$PARTITION"
-  wipe: "$WIPE"
+  wipe: $WIPE
 EOF
 
 # Apply!
 $SUDO comtrya -v -c .comtrya.yaml -d $MANIFEST apply -m "$MACHINE"
 
+# TODO: Can we have only the nix, without comtrya's bootstrap?
 echo "Next step (run either one manually):"
 echo "    => $SUDO nixos-install"
 echo " or => $SUDO nixos-rebuild switch --upgrade"
