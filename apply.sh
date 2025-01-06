@@ -19,6 +19,7 @@ if (( ${#ENVS_SUDO[@]} != 0 )); then
     SUDO+=" env ${ENVS_SUDO[*]}"
 fi
 
+CHANNEL="24.11"
 DISK=
 SUBDISK=
 WIPE=false
@@ -29,7 +30,7 @@ YES=false
 while true; do
     case "${1:-}" in
     "-p")
-        DISK="${2:-}"
+        DISK="$2"
         shift 2
     ;;
     "-w")
@@ -44,6 +45,21 @@ while true; do
         REMOTE=true
         shift 1
     ;;
+    "-c")
+        CHANNEL="$2"
+        shift 2
+    ;;
+    "-h")
+        echo "$0 [OPTIONS] MACHINE [ROOT]"
+        echo "    -h         This (un)helpful message"
+        echo "    -c CHANNEL Switch to other channel, e.g. 24.11"
+        echo "    -p DISK    Mount the disk if is already set up"
+        echo "    -w         Partition the disk (DANGEROUS!)"
+        echo "    -y         Yes for all, don't even ask"
+        echo "    -g         Test remote manifest via git"
+        echo "If nothing supplies, MACHINE is the hostname"
+        exit 1
+    ;;
     *)
         break
     ;;
@@ -51,18 +67,9 @@ while true; do
 done
 
 MANIFEST=nixos
-MACHINE="${1:-}"
+MACHINE="${1:-"$(hostname)"}"
 ROOT="${2:-}"
 ROOT="${ROOT%/}"
-
-if [[ "$MACHINE" == "" ]]; then
-    echo "$0 [OPTIONS] MACHINE [ROOT]"
-    echo "    -p DISK    Mount the disk if is already set up"
-    echo "    -w         Partition the disk (DANGEROUS!)"
-    echo "    -y         Yes for all, don't even ask"
-    echo "    -g         Test remote manifest via git"
-    exit 1
-fi
 
 if [[ "$DISK" != "" ]]; then
     if [[ "$ROOT" == "" ]]; then
@@ -129,10 +136,11 @@ if ! $SUDO which comtrya &> /dev/null; then
     fi
 fi
 
-# Generate config:
-cat > .comtrya.yaml <<EOF
+# Generate config, using tee for dumping:
+tee .comtrya.yaml <<EOF
 variables:
   machine: "$MACHINE"
+  channel: "$CHANNEL"
   root: "$ROOT"
   disk: "$DISK"
   partition: "$DISK$SUBDISK"
