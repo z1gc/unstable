@@ -1,4 +1,7 @@
 actions:
+  # Partition Disk
+  # ==============
+  # /efi ~1GiB, swap 15GiB, root remains
   - action: command.run
     where: '!variables.disk.is_empty && variables.wipe'
     command: parted
@@ -12,8 +15,11 @@ actions:
       - mkpart swap linux-swap 1GiB 16GiB
       - mkpart root btrfs 16GiB 100%
     privileged: true
+  # Make Filesystems
+  # ================
+  # /efi fat32, swap swap, root btrfs
   - action: command.run
-    where: '!variables.disk.is_empty && variables.wipe'
+    where: '!variables.partition.is_empty && variables.wipe'
     command: mkfs
     args:
       - -t
@@ -23,32 +29,34 @@ actions:
         - "32"
         - -n
         - boot
-        - '{{ variables.disk }}{{ variables.partition }}1'
+        - '{{ variables.partition }}1'
       - - btrfs
         - -f
-        - '{{ variables.disk }}{{ variables.partition }}3'
+        - '{{ variables.partition }}3'
     privileged: true
-  # Not a huge fan of swap, just want to reduce the system pressure.
-  # And with a swap partition, you can reuse it when you need, such as luks
-  # full disk encryption, or expand the /efi partition.
+  # Swap here is not for hibernating, is for reducing the memory pressure.
+  # Also you can reuse it when you need, such as LUKS, or /efi expansion.
   # https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/managing_storage_devices/getting-started-with-swap_managing-storage-devices
   - action: command.run
-    where: '!variables.disk.is_empty && variables.wipe'
+    where: '!variables.partition.is_empty && variables.wipe'
     command: mkswap
     args:
       - -L
       - swap
-      - '{{ variables.disk }}{{ variables.partition }}2'
+      - '{{ variables.partition }}2'
     privileged: true
+  # Btrfs Subvolumes
+  # ================
+  # @root /, @home /home, @nix /nix
   - action: command.run
-    where: '!variables.disk.is_empty && !variables.root.is_empty && variables.wipe'
+    where: '!variables.partition.is_empty && !variables.root.is_empty && variables.wipe'
     command: mount
     args:
-      - '{{ variables.disk }}{{ variables.partition }}3'
+      - '{{ variables.partition }}3'
       - '{{ variables.root }}'
     privileged: true
   - action: command.run
-    where: '!variables.disk.is_empty && !variables.root.is_empty && variables.wipe'
+    where: '!variables.partition.is_empty && !variables.root.is_empty && variables.wipe'
     command: btrfs
     args:
       - subvolume
@@ -57,8 +65,10 @@ actions:
       - '{{ variables.root }}/@home'
       - '{{ variables.root }}/@nix'
     privileged: true
+  # Mount Rootfs, Swap
+  # ==================
   - action: command.run
-    where: '!variables.disk.is_empty && !variables.root.is_empty'
+    where: '!variables.partition.is_empty && !variables.root.is_empty'
     command: umount
     args:
       - -R
@@ -66,32 +76,41 @@ actions:
     ignore_errors: true
     privileged: true
   - action: command.run
-    where: '!variables.disk.is_empty && !variables.root.is_empty'
+    where: '!variables.partition.is_empty && !variables.root.is_empty'
     command: mount
     args:
       - -m
     xargs:
       - - -o
         - compress=zstd,subvol=@root
-        - '{{ variables.disk }}{{ variables.partition }}3'
+        - '{{ variables.partition }}3'
         - '{{ variables.root }}'
-      - - '{{ variables.disk }}{{ variables.partition }}1'
+      - - '{{ variables.partition }}1'
         - '{{ variables.root }}/efi'
       - - -o
         - compress=zstd,subvol=@home
-        - '{{ variables.disk }}{{ variables.partition }}3'
+        - '{{ variables.partition }}3'
         - '{{ variables.root }}/home'
       - - -o
         - compress=zstd,noatime,subvol=@nix
-        - '{{ variables.disk }}{{ variables.partition }}3'
+        - '{{ variables.partition }}3'
         - '{{ variables.root }}/nix'
     privileged: true
   - action: command.run
-    where: '!variables.disk.is_empty && !variables.root.is_empty'
+    where: '!variables.partition.is_empty && !variables.root.is_empty'
+    command: swapoff
+    args:
+      - '{{ variables.partition }}2'
+    ignore_errors: true
+    privileged: true
+  - action: command.run
+    where: '!variables.partition.is_empty && !variables.root.is_empty'
     command: swapon
     args:
-      - '{{ variables.disk }}{{ variables.partition }}2'
+      - '{{ variables.partition }}2'
     privileged: true
+  # NixOS Here
+  # ==========
   - action: command.run
     where: '!variables.root.is_empty'
     command: nixos-generate-config

@@ -2,20 +2,25 @@
 
 set -ue
 
-SUDO="$(which sudo) env"
-if [[ "$SUDO" == " env" ]]; then
+SUDO="$(which sudo)"
+if [[ "$SUDO" == "" ]]; then
     echo "Have no sudo!"
     exit 1
 fi
 
 # For nix, it's better not to use -E, which will pollutes the $HOME or other
 # envs. We keep a workaround to pass some envs here, like `env_keep` in sudo.
+ENVS_SUDO=()
 if [[ "${HTTPS_PROXY:-}" != "" ]]; then
-    SUDO+=" HTTPS_PROXY=$HTTPS_PROXY"
+    ENVS_SUDO+=("HTTPS_PROXY=$HTTPS_PROXY")
+fi
+
+if (( ${#ENVS_SUDO[@]} != 0 )); then
+    SUDO+=" env ${ENVS_SUDO[*]}"
 fi
 
 DISK=
-PARTITION=
+SUBDISK=
 WIPE=false
 REMOTE=false
 YES=false
@@ -82,7 +87,7 @@ if [[ "$DISK" != "" ]]; then
         ;;
         "259")
             # /dev/nvme0n1p1
-            PARTITION=p
+            SUBDISK=p
         ;;
         *)
             echo "Invalid disk, report it."
@@ -130,7 +135,7 @@ variables:
   machine: "$MACHINE"
   root: "$ROOT"
   disk: "$DISK"
-  partition: "$PARTITION"
+  partition: "$DISK$SUBDISK"
   wipe: $WIPE
 EOF
 
