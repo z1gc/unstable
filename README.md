@@ -1,6 +1,8 @@
-# Unstable
+# N9
 
-.files of mine, using NixOS.
+.files of mine, mainly using NixOS.
+
+N9 is abbr of N-IX, so freaking bad joke.
 
 # .*
 
@@ -14,8 +16,8 @@ Managed by [comtrya](https://github.com/comtrya/comtrya),
 ./apply.sh evil /mnt
 
 # Or via network
-curl -L https://ptr.ffi.fyi/unstable | bash -s -- evil /mnt
+curl -L https://ptr.ffi.fyi/n9 | bash -s -- evil /mnt
 
 # Full wipe
-./apply.sh -p /dev/nvme0n1 evil /mnt
+./apply.sh -p /dev/nvme0n1 -w evil /mnt
 ```

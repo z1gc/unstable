@@ -9,7 +9,7 @@
 # TODO: better way of rebuilding? These steps will re-copy the dependencies.
 rustPlatform.buildRustPackage rec {
   pname = "comtrya";
-  version = "unstable";
+  version = "git";
 
   # have to comment out the hash if the repo is updated (version unchanged):
   src = fetchFromGitHub {
@@ -19,7 +19,7 @@ rustPlatform.buildRustPackage rec {
     hash = "sha256-+/EQYS2J0awdjmqJQvKwfJkRLt/lbtMwJLDsW38A6M8=";
   };
 
-  cargoHash = "sha256-ezQ6r+dL9qk1wos31uhzkDv5AAnSFdtZjWKyHXOlOYU=";
+  cargoHash = "sha256-ak2HnBpsuzq04uwOTDBTO8KRjajsLfyfY10SdrUX4qY=";
   doCheck = false;
 
   meta = with lib; {

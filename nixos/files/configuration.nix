@@ -5,11 +5,12 @@
 { config, lib, pkgs, ... }:
 
 let
+  # unstable-small is updated more frequently, and is more cutting edge:
   unstableChannel =
-    fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz;
+    fetchTarball https://github.com/NixOS/nixpkgs/archive/nixos-unstable-small.tar.gz;
 
-  aptenodytesChannel =
-    fetchTarball https://github.com/z1gc/unstable/archive/main.tar.gz;
+  n9Channel =
+    fetchTarball https://github.com/z1gc/n9/archive/main.tar.gz;
 
   # https://nixos.wiki/wiki/Overlays
   # The name of `self, super, prev` can be different, may be `final, prev, old`:
@@ -47,7 +48,7 @@ in
         config = config.nixpkgs.config;
       };
 
-      aptenodytes = import aptenodytesChannel {};
+      n9 = import n9Channel {};
     };
   };
 
@@ -132,7 +133,7 @@ in
     unstable.helix
 
     # Penguin!
-    aptenodytes.comtrya
+    n9.comtrya
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

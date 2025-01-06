@@ -107,16 +107,16 @@ fi
 # To here, or to tmp (TODO: cleanup?):
 cd "$(dirname "${BASH_SOURCE[0]}")"
 if $REMOTE || [[ ! -d .git ]]; then
-    mkdir -p /tmp/unstable
-    cd /tmp/unstable
-    MANIFEST=https://github.com/z1gc/unstable#main:nixos
+    mkdir -p /tmp/n9
+    cd /tmp/n9
+    MANIFEST=https://github.com/z1gc/n9#main:nixos
 fi
 
 # Check comtrya:
 if ! $SUDO which comtrya &> /dev/null; then
-    $SUDO nix-channel --add https://github.com/z1gc/unstable/archive/main.tar.gz aptenodytes
-    $SUDO nix-channel --update aptenodytes
-    $SUDO nix-env -iA aptenodytes.comtrya
+    $SUDO nix-channel --add https://github.com/z1gc/n9/archive/main.tar.gz n9
+    $SUDO nix-channel --update n9
+    $SUDO nix-env -iA n9.comtrya
 
     if ! $SUDO comtrya version; then
         echo "Install comtrya failed, maybe you have solutions?"
