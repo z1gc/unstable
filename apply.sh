@@ -13,6 +13,9 @@ ENVS_SUDO=()
 if [[ "${HTTPS_PROXY:-}" != "" ]]; then
     ENVS_SUDO+=("HTTPS_PROXY=$HTTPS_PROXY")
 fi
+if [[ "${NIX_CRATES_INDEX:-}" != "" ]]; then
+    ENVS_SUDO+=("NIX_CRATES_INDEX=$NIX_CRATES_INDEX")
+fi
 
 SUDO="sudo"
 if (( ${#ENVS_SUDO[@]} != 0 )); then
@@ -107,7 +110,7 @@ if [[ "$DISK" != "" ]]; then
         exit 1
     fi
 
-    if ! $YES; then
+    if $WIPE && ! $YES; then
         read -p "The $DISK will be destroyed! Y? " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then

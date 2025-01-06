@@ -84,6 +84,9 @@ actions:
     owned_by_user: root
     template: true
     to: '{{ vars.root }}/etc/nixos/configuration.nix'
+  - action: directory.copy
+    from: snippet
+    to: "{{ vars.root }}/etc/nixos"
   - action: command.run
     command: nix-channel
     xargs:
