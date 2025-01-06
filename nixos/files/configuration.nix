@@ -30,6 +30,17 @@ let
         });
       };
     });
+
+    # TODO: better way for handling the patches?
+    openssh = super.openssh.overrideAttrs (prev: {
+      patches = (prev.patches or []) ++ [
+        (pkgs.fetchpatch {
+          name = "z1gc-openssh.patch";
+          url = "https://github.com/z1gc/openssh-portable/commit/b3320c50cb0c74bcc7f0dade450c1660fd09b241.patch";
+          hash = "sha256-kiR/1Jz4h4z+fIW9ePgNjEXq0j9kHILPi9UD4JruV7M=";
+        })
+      ];
+    });
   });
 in
 {

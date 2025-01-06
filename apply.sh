@@ -2,8 +2,7 @@
 
 set -ue
 
-SUDO="$(which sudo)"
-if [[ "$SUDO" == "" ]]; then
+if ! which sudo &> /dev/null; then
     echo "Have no sudo!"
     exit 1
 fi
@@ -15,6 +14,7 @@ if [[ "${HTTPS_PROXY:-}" != "" ]]; then
     ENVS_SUDO+=("HTTPS_PROXY=$HTTPS_PROXY")
 fi
 
+SUDO="sudo"
 if (( ${#ENVS_SUDO[@]} != 0 )); then
     SUDO+=" env ${ENVS_SUDO[*]}"
 fi
