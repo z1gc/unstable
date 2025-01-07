@@ -3,6 +3,23 @@
 where: "!vars.secret.is_empty"
 
 actions:
+  # For git submodule, there will be a empty directory, remove it:
+  - action: command.run
+    command: bash
+    args:
+      - -c
+      - |
+        DIR="{{ manifest.root_dir }}/../asterisk"
+        if [[ ! -d "$DIR/.git" ]]; then
+          rm -rf "$DIR"
+        fi
   - action: git.clone
     repo_url: git@github.com:z1gc/asterisk.git
     directory: "{{ manifest.root_dir }}/../asterisk"
+  - action: command.run
+    where: manifest.root_dir.starts_with("{{ env.SUDO_HOME }}")
+    command: chown
+    args:
+      - -R
+      - "{{ env.SUDO_UID }}:{{ env.SUDO_GID }}"
+      - "{{ manifest.root_dir }}/../asterisk"
