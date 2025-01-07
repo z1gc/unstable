@@ -1,4 +1,11 @@
-{ config, pkgs, ... }:
+# refs:
+# https://www.reddit.com/r/NixOS/comments/17a46oh/comment/k5agcws/
+# https://discourse.nixos.org/t/is-it-possible-to-override-cargosha256-in-buildrustpackage/4393/10
+# https://nixos.wiki/wiki/Overlays
+# https://stackoverflow.com/a/48838322
+# https://discourse.nixos.org/t/passing-parameters-into-import/34082/2
+
+{ config, pkgs }:
 
 let
   # unstable-small is updated more frequently, and is more cutting edge:
@@ -8,10 +15,8 @@ let
   n9Channel =
     fetchTarball "https://github.com/z1gc/n9/archive/main.tar.gz";
 
-  # https://nixos.wiki/wiki/Overlays
   # The name of `self, super, prev` can be different, may be `final, prev, old`:
   overlay = (self: super: {
-    # https://discourse.nixos.org/t/is-it-possible-to-override-cargosha256-in-buildrustpackage/4393/10
     # Rust is kind of "fancy":
     unstable.helix = super.unstable.helix.override (prev: {
       rustPlatform = prev.rustPlatform // {
@@ -40,7 +45,6 @@ let
   });
 in
 {
-  # https://stackoverflow.com/a/48838322
   config = {
     packageOverrides = pkgs: {
       unstable = import unstableChannel {

@@ -10,4 +10,4 @@ actions:
     owned_by_group: root
     owned_by_user: root
     template: true
-    to: '{{ variables.root }}/etc/nixos/kernel-harm.nix'
+    to: "{{ vars.root }}/etc/nixos/kernel-harm.nix"

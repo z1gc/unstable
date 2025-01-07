@@ -2,12 +2,12 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   homeManagerChannel =
     fetchTarball
-      "https://github.com/nix-community/home-manager/archive/release-{{ variables.channel }}.tar.gz";
+      "https://github.com/nix-community/home-manager/archive/release-{{ vars.channel }}.tar.gz";
 in
 {
   imports =
@@ -23,7 +23,7 @@ in
   nix.settings.substituters =
     [ "https://mirror.sjtu.edu.cn/nix-channels/store" ];
 
-  nixpkgs = import ./snippet/overlay.nix;
+  nixpkgs = import ./snippet/overlay.nix { inherit config pkgs; };
 
   environment.variables = {
     NIX_CRATES_INDEX = "sparse+https://mirrors.ustc.edu.cn/crates.io-index/";
@@ -76,19 +76,19 @@ in
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
 
+  # genAttrs [ "ffi" ] (group: { gid = 1000 };)
+  # => ffi.gid = 1000
   users.groups = lib.genAttrs [ "{{ vars.group }}" ] (group: {
-    group.gid = "{{ vars.gid }}";
+    gid = lib.strings.toInt "{{ vars.gid }}";
   });
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users = lib.genAttrs [ "{{ vars.user }}" ] (user: {
-    user = {
-      isNormalUser = true;
-      uid = "{{ vars.uid }}";
-      group = "{{ vars.group }}";
-      extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-      packages = [ ]; # Have no idea what should place.
-    };
+    isNormalUser = true;
+    uid = lib.strings.toInt "{{ vars.uid }}";
+    group = "{{ vars.group }}";
+    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+    packages = [ ]; # Have no idea what should place.
   });
 
   # List packages installed in system profile. To search: nix search wget
@@ -109,8 +109,8 @@ in
 
   # Not need to worry, as well:
   home-manager.users = lib.genAttrs [ "{{ vars.user }}" ] (user: {
-    user.home.stateVersion = "24.11";
-    user.programs.fish = import ./snippet/fish.nix;
+    home.stateVersion = "24.11";
+    programs.fish = import ./snippet/fish.nix { inherit pkgs; };
   });
 
   # Some programs need SUID wrappers, can be configured further or are
