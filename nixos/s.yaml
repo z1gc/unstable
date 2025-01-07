@@ -1,4 +1,4 @@
-# This isn't a stage, it's -1 :)
+# This isn't a (s) stage, it's -1 :)
 # Only for loading the secrets at the startup.
 where: "!vars.secret.is_empty"
 

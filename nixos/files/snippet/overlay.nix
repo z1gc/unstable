@@ -41,7 +41,7 @@ let
 in
 {
   # https://stackoverflow.com/a/48838322
-  nixpkgs.config = {
+  config = {
     packageOverrides = pkgs: {
       unstable = import unstableChannel {
         config = config.nixpkgs.config;
@@ -51,5 +51,5 @@ in
     };
   };
 
-  nixpkgs.overlays = [ overlay ];
+  overlays = [ overlay ];
 }

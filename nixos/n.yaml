@@ -1,4 +1,4 @@
-# 1st stage: prepare dish + initial configuration
+# 1st stage (n): prepare dish + initial configuration
 actions:
   # Partition Disk
   # ==============

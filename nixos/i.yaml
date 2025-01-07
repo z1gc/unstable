@@ -1,4 +1,13 @@
-# 2nd stage: device setup, secret setup, and more
-# (dev.machine should depends on nix.i)
+# 2nd stage (i): device setup, secret setup, and more
 depends:
-  - "dev.{{ vars.machine }}"
+  - nixos.n
+
+# Hyper-V in ARM64
+actions:
+  - action: file.copy
+    where: vars.hyperv && vars.arm64
+    from: kernel-harm.nix
+    owned_by_group: root
+    owned_by_user: root
+    template: true
+    to: '{{ variables.root }}/etc/nixos/kernel-harm.nix'

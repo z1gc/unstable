@@ -2,7 +2,7 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 let
   homeManagerChannel =
@@ -15,16 +15,15 @@ in
       "${homeManagerChannel}/nixos"
       # nixos-generate-config --show-hardware-config
       ./hardware-configuration.nix
-      # {% if variables.machine == "harm" %}
+      # {% if vars.hyperv and vars.arm64 %}
       ./kernel-harm.nix
       # {% endif %}
-
-      ./snippet/overlay.nix
-      ./snippet/fish.nix
     ];
 
   nix.settings.substituters =
     [ "https://mirror.sjtu.edu.cn/nix-channels/store" ];
+
+  nixpkgs = import ./snippet/overlay.nix;
 
   environment.variables = {
     NIX_CRATES_INDEX = "sparse+https://mirrors.ustc.edu.cn/crates.io-index/";
@@ -43,7 +42,7 @@ in
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Network:
-  networking.hostName = "{{ variables.machine }}";
+  networking.hostName = "{{ vars.machine }}";
   # networking.wireless.enable = true;
   networking.networkmanager.enable = true;
 
@@ -77,21 +76,22 @@ in
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
 
-  users.groups.byte = {
-    gid = 1000;
-  };
+  users.groups = lib.genAttrs [ "{{ vars.group }}" ] (group: {
+    group.gid = "{{ vars.gid }}";
+  });
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.byte = {
-    isNormalUser = true;
-    uid = 1000;
-    group = "byte";
-    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-    packages = [ ]; # Have no idea what should place.
-  };
+  users.users = lib.genAttrs [ "{{ vars.user }}" ] (user: {
+    user = {
+      isNormalUser = true;
+      uid = "{{ vars.uid }}";
+      group = "{{ vars.group }}";
+      extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+      packages = [ ]; # Have no idea what should place.
+    };
+  });
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
+  # List packages installed in system profile. To search: nix search wget
   environment.systemPackages = with pkgs; [
     zoxide
     git
@@ -108,7 +108,10 @@ in
   ];
 
   # Not need to worry, as well:
-  home-manager.users.byte.home.stateVersion = "24.11";
+  home-manager.users = lib.genAttrs [ "{{ vars.user }}" ] (user: {
+    user.home.stateVersion = "24.11";
+    user.programs.fish = import ./snippet/fish.nix;
+  });
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

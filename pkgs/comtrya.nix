@@ -12,18 +12,18 @@
 # TODO: better way of rebuilding? These steps will re-copy the dependencies.
 rustPlatform.buildRustPackage rec {
   pname = "comtrya";
-  version = "510246b9afa35a14f722b9906061037311226a78";
+  version = "b6541726b6c3ee7fec2e8350ccd0689ce9a0d78f";
 
   # have to comment out the hash if the repo is updated (version unchanged):
   src = fetchFromGitHub {
     owner = "z1gc";
     repo = "${pname}";
     rev = version;
-    hash = "sha256-7GZm8ZAFiBIyRzizQLVSNZtDcDGXvH19gIW3hD00FZE=";
+    hash = "sha256-pkrHY97paYBaSnox55BOHPsH6RWpwXaGl4d6ymBPwL0=";
   };
 
   # filling with `lib.fakeHash` first, then re-run to get the correct hash:
-  cargoHash = "sha256-jjiwaULea2dE+xuZt5RWVqcKO1pKJpdq9iz1dYxhq7s=";
+  cargoHash = "sha256-eAaoZb0ch1/QL5KF739Hzxh/dqZ36RYSGk+yKhI/PBI=";
   cargoBuildFlags = [ "--bin" "comtrya" ];
   doCheck = false;
 

@@ -1,4 +1,4 @@
-# 3rd stage: System installation
+# 3rd stage (x): System installation
 depends:
   - nixos.i
 

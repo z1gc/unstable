@@ -143,6 +143,9 @@ fi
 
 # Generate config, using tee for dumping:
 tee .comtrya.yaml <<EOF
+include_variables:
+  - file+yaml:dev/$MACHINE.yaml
+
 variables:
   machine: "$MACHINE"
   channel: "24.11"
@@ -156,4 +159,5 @@ EOF
 # Apply! TODO: Can we have only the nix, without comtrya's bootstrap?
 # shellcheck disable=SC2086
 $COMTRYA -c .comtrya.yaml -d $MANIFEST apply -m nixos.s
+# shellcheck disable=SC2086
 $SUDO $COMTRYA -c .comtrya.yaml -d $MANIFEST apply -m "$STEP"
