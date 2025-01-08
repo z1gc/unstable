@@ -1,9 +1,6 @@
 # This isn't a (s) stage, it's -1 :)
-# Only for loading the secrets at the startup.
-where: "!vars.secret.is_empty"
-
 actions:
-  # For git submodule, there will be a empty directory, remove it:
+  # For git submodule, there will be an empty directory, remove it:
   - action: command.run
     command: bash
     args:
@@ -14,6 +11,7 @@ actions:
           rm -rf "$DIR"
         fi
   - action: git.clone
+    where: "!vars.secret.is_empty"
     repo_url: git@github.com:z1gc/asterisk.git
     directory: "{{ manifest.root_dir }}/../asterisk"
   - action: command.run
@@ -23,3 +21,9 @@ actions:
       - -R
       - "{{ env.SUDO_UID }}:{{ env.SUDO_GID }}"
       - "{{ manifest.root_dir }}/../asterisk"
+    ignore_errors: true
+  # Ensure permission, especially for keys:
+  - action: command.run
+    command: chmod
+    args: [-R, "g-rw,o-rw", "{{ manifest.root_dir }}/../asterisk"]
+    ignore_errors: true

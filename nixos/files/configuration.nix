@@ -76,8 +76,8 @@ in
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
 
-  # genAttrs [ "ffi" ] (group: { gid = 1000 };)
-  # => ffi.gid = 1000
+  # genAttrs [ "ffi" ] (what: { fyi = "ptr" };)
+  # => ffi.fyi = "ptr"
   users.groups = lib.genAttrs [ "{{ vars.group }}" ] (group: {
     gid = lib.strings.toInt "{{ vars.gid }}";
   });
@@ -107,8 +107,8 @@ in
     n9.comtrya
   ];
 
-  # Not need to worry, as well:
   home-manager.users = lib.genAttrs [ "{{ vars.user }}" ] (user: {
+    # No need to worry, as well:
     home.stateVersion = "24.11";
     programs.fish = import ./snippet/fish.nix { inherit pkgs; };
   });
@@ -136,6 +136,6 @@ in
   # accidentally delete configuration.nix.
   system.copySystemConfiguration = true;
 
-  # Not need to worry:
+  # No need to worry:
   system.stateVersion = "24.11";
 }

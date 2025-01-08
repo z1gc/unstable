@@ -30,7 +30,7 @@ while true; do
     ;;
     "-v")
         set -x
-        COMTRYA="comtrya -vv"
+        COMTRYA+=" -vv"
         shift 1
     ;;
     "-h")
@@ -130,10 +130,6 @@ if ! $SUDO which comtrya &> /dev/null; then
     $SUDO nix-channel --add https://github.com/z1gc/n9/archive/main.tar.gz n9
     $SUDO nix-channel --update n9
     $SUDO nix-env -iA n9.comtrya
-    if ! $SUDO comtrya version; then
-        echo "Install comtrya failed, maybe you have solutions?"
-        exit 1
-    fi
 fi
 
 # Generate config, using tee for dumping:
