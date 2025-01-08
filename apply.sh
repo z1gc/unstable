@@ -126,9 +126,9 @@ if ! grep -Fq z1gc/n9 .git/config; then
     cd n9
 fi
 # Try to update if needs:
-git pull --rebase --recurse-submodules
+git pull --rebase --recurse-submodules || true
 # Reset to secure permissions:
-chmod -R g-rw,o-rw .
+chmod -R g-rw,o-rw asterisk
 
 if ! $SUDO which miniya &> /dev/null; then
     $SUDO nix-channel --add https://github.com/z1gc/n9/archive/main.tar.gz n9

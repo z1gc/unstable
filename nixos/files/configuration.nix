@@ -1,5 +1,4 @@
-# Edit this configuration file to define what should be installed on
-# your system. Help is available in the configuration.nix(5) man page, on
+# Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
 { config, pkgs, lib, ... }:
@@ -100,9 +99,6 @@ in
     fd
     fzf
 
-    # Not in Stable:
-    unstable.helix
-
     # Penguin!
     n9.miniya
   ];
@@ -110,7 +106,20 @@ in
   home-manager.users = lib.genAttrs [ "{{ vars.user }}" ] (user: {
     # No need to worry, as well:
     home.stateVersion = "24.11";
-    programs.fish = import ./snippet/fish.nix { inherit pkgs; };
+    # Snippet only takes care of the configs, not system stuff (package, default, ...),
+    # in this way we can better control the home-manager of specific machine/user.
+    # For example, if we don't want to enable fish in a router.
+    programs.fish = import ./snippet/fish.nix { inherit pkgs; } // {
+      enable = true;
+    };
+    programs.helix = import ./snippet/helix.nix {} // {
+      enable = true;
+      defaultEditor = true;
+      package = pkgs.unstable.helix;
+    };
+    programs.git = import ./snippet/git.nix {} // {
+      enable = true;
+    };
   });
 
   # Some programs need SUID wrappers, can be configured further or are

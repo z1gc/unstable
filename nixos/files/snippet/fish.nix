@@ -1,7 +1,6 @@
 { pkgs }:
 
 {
-  enable = true;
   plugins = [
     {
       name = "autols";
@@ -172,11 +171,11 @@
 
   shellInitLast = ''
     # Fish style
-    set __fish_git_prompt_showdirtystate yes
-    set __fish_git_prompt_showstashstate yes
-    set __fish_git_prompt_showuntrackedfiles yes
-    set __fish_git_prompt_showupstream informative
-    set __fish_git_prompt_describe_style default
+    set -g __fish_git_prompt_showdirtystate yes
+    set -g __fish_git_prompt_showstashstate yes
+    set -g __fish_git_prompt_showuntrackedfiles yes
+    set -g __fish_git_prompt_showupstream informative
+    set -g __fish_git_prompt_describe_style default
 
     # Z
     zoxide init fish | source
@@ -188,17 +187,9 @@
 
     # Remove flashing colors, https://linux.overshoot.tv/wiki/ls
     set -gx LS_COLORS (string replace -a '05;' "" "$LS_COLORS")
-
-    # Autols, workaround
-    set -g __autols_last_dir "$PWD"
-    emit autols_uninstall
-    emit autols_install
   '';
 
   shellAbbrs = {
-    n9s = "sudo nixos-rebuild switch";
-    n9u = "sudo nixos-rebuild switch --upgrade";
-
     hi = "hx .";
     ra = "rg --hidden --no-ignore";
     ff = "fd --type f .";
