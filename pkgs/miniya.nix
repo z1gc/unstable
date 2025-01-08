@@ -12,18 +12,18 @@
 # TODO: better way of rebuilding? These steps will re-copy the dependencies.
 rustPlatform.buildRustPackage rec {
   pname = "miniya";
-  version = "7f640c438fd8686928d311ec92a330d52f3c04a8";
+  version = "2b988e48f9c41167d1392e2b42262414b839a2ba";
 
   # have to comment out the hash if the repo is updated (version unchanged):
   src = fetchFromGitHub {
     owner = "z1gc";
     repo = "${pname}";
     rev = version;
-    hash = "sha256-Wy8h2v3bR2E09JasVx/5e4pgxm9idCctZy1tiJwDPhs=";
+    hash = "sha256-aReYhkSyQKibT/YiCcDG90PHi6r4kD9maWAH6a3l/Jo=";
   };
 
   # filling with `lib.fakeHash` first, then re-run to get the correct hash:
-  cargoHash = "sha256-bWmcXLCbMC2US+l+kFrrkjs1zLfx/d36NgtLE1FkzaA=";
+  cargoHash = "sha256-sC0ZVfX5N5xUqq5+/2PwFNEabc3CU3s14qou7QZ1vQU=";
   cargoBuildFlags = [ "--bin" "miniya" ];
   doCheck = false;
 

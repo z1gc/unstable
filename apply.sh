@@ -11,32 +11,32 @@ for REQUIRED in sudo git; do
 done
 
 # TODO: Can we have only the nix, without miniya's bootstrap? Or nix-shell?
-MINIYA=miniya
+MINIYA="miniya -c .miniya.yaml -d ."
 DISK=
 SUBDISK=
 WIPE=false
 SECRET=
+STEP=
 
 # Arguments parsing:
 while true; do
     case "${1:-}" in
     "-p")
         DISK="$2"
-        shift 2
-    ;;
+        shift 2 ;;
     "-w")
         WIPE=true
-        shift 1
-    ;;
+        shift 1 ;;
     "-s")
         SECRET="$2"
-        shift 2
-    ;;
+        shift 2 ;;
+    "-t")
+        STEP="$2"
+        shift 2 ;;
     "-v")
         set -x
         MINIYA+=" -vv"
-        shift 1
-    ;;
+        shift 1 ;;
     "-h")
         echo "$0 [OPTIONS] MACHINE [ROOT]"
         echo "    -h         This (un)helpful message"
@@ -45,11 +45,9 @@ while true; do
         echo "    -w         Partition the disk (DANGEROUS!)"
         echo "    -s SECRET  Asterisk, give me a secret, and more"
         echo "If nothing supplies, MACHINE wll be set to $(hostname)"
-        exit 1
-    ;;
+        exit 1 ;;
     *)
-        break
-    ;;
+        break ;;
     esac
 done
 
@@ -73,16 +71,13 @@ if [[ "$DISK" != "" ]]; then
     # https://www.kernel.org/doc/html/latest/admin-guide/devices.html
     case "$MAJOR" in
         "8"|"253")
-            # /dev/sda1 | /dev/vda1
-        ;;
+            ;; # /dev/sda1 | /dev/vda1
         "259")
             # /dev/nvme0n1p1
-            SUBDISK=p
-        ;;
+            SUBDISK=p ;;
         *)
             echo "Invalid disk, report it."
-            exit 1
-        ;;
+            exit 1 ;;
     esac
 
     if (( MINOR != 0 )); then
@@ -145,5 +140,9 @@ variables:
   wipe: $WIPE
 EOF
 
-# shellcheck disable=SC2086
-$SUDO $MINIYA -c .miniya.yaml -d . apply -m nixos.s
+if [[ "$STEP" == "" ]]; then
+    # shellcheck disable=SC2086
+    $SUDO $MINIYA apply -m nixos.s
+else
+    $SUDO $MINIYA apply -i "$STEP"
+fi
