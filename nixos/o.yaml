@@ -1,4 +1,14 @@
-# 4th stage (o): Post installation stage
+# 4th stage (o): install sysatem
 depends:
   - nixos.x
-  - asterisk.post
+
+actions:
+  # Last Step Ride
+  # ==============
+  - action: command.run
+    command: nixos-rebuild
+    args: [switch, --upgrade]
+    variants:
+      - where: "!vars.root.is_empty"
+        command: nixos-install
+        args: [--root, "{{ vars.root }}"]

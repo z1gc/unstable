@@ -104,7 +104,7 @@ in
     unstable.helix
 
     # Penguin!
-    n9.comtrya
+    n9.miniya
   ];
 
   home-manager.users = lib.genAttrs [ "{{ vars.user }}" ] (user: {

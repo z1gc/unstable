@@ -2,12 +2,16 @@
 
 set -ue
 
-if ! which sudo &> /dev/null; then
-    echo "Have no sudo!"
-    exit 1
-fi
+for REQUIRED in sudo git; do
+    if ! which $REQUIRED &> /dev/null; then
+        echo "Have no $REQUIRED!"
+        echo "(Try \"nix-env -iA nixos.$REQUIRED\"?)"
+        exit 1
+    fi
+done
 
-COMTRYA=comtrya
+# TODO: Can we have only the nix, without miniya's bootstrap? Or nix-shell?
+MINIYA=miniya
 DISK=
 SUBDISK=
 WIPE=false
@@ -30,7 +34,7 @@ while true; do
     ;;
     "-v")
         set -x
-        COMTRYA+=" -vv"
+        MINIYA+=" -vv"
         shift 1
     ;;
     "-h")
@@ -49,7 +53,6 @@ while true; do
     esac
 done
 
-MANIFEST=.
 MACHINE="${1:-"$(hostname)"}"
 ROOT="${2:-}"
 ROOT="${ROOT%/}"
@@ -91,14 +94,6 @@ if [[ "$DISK" != "" ]]; then
     fi
 fi
 
-# To here, or to tmp (TODO: cleanup?):
-cd "$(dirname "${BASH_SOURCE[0]}")"
-if [[ ! -d .git ]]; then
-    mkdir -p /tmp/n9
-    cd /tmp/n9
-    MANIFEST=https://github.com/z1gc/n9
-fi
-
 # For nix, it's better not to use -E, which will pollutes the $HOME or other
 # envs. We keep a workaround to pass some envs here, like `env_keep` in sudo.
 ENVS_SUDO=()
@@ -108,32 +103,38 @@ fi
 if [[ "${NIX_CRATES_INDEX:-}" != "" ]]; then
     ENVS_SUDO+=("NIX_CRATES_INDEX=$NIX_CRATES_INDEX")
 fi
+SUDO="sudo"
+if (( ${#ENVS_SUDO[@]} != 0 )); then
+    SUDO+=" env ${ENVS_SUDO[*]}"
+fi
 
 # We have secrets, for sure:
+CLONE="git clone"
 if [[ "$SECRET" != "" ]]; then
     if [[ "${SSH_AUTH_SOCK:-}" == "" ]]; then
         eval "$(ssh-agent -s)"
         # shellcheck disable=SC2064
         trap "kill $SSH_AGENT_PID" SIGINT SIGTERM EXIT
     fi
-    ENVS_SUDO+=("SSH_AUTH_SOCK=$SSH_AUTH_SOCK")
     curl -L "https://ptr.ffi.fyi/asterisk?hash=$SECRET" | bash -s
+    CLONE+=" --recursive"
 fi
-
-SUDO="sudo"
-if (( ${#ENVS_SUDO[@]} != 0 )); then
-    SUDO+=" env ${ENVS_SUDO[*]}"
+# To where it lives:
+cd "$(dirname "${BASH_SOURCE[0]}")"
+if ! grep -Fq z1gc/miniya .git/config; then
+    $CLONE https://github.com/z1gc/n9.git n9
+    cd n9
 fi
+# Reset to secure permissions:
+chmod -R g-rw,o-rw .
 
-# Check comtrya:
-if ! $SUDO which comtrya &> /dev/null; then
+if ! $SUDO which miniya &> /dev/null; then
     $SUDO nix-channel --add https://github.com/z1gc/n9/archive/main.tar.gz n9
     $SUDO nix-channel --update n9
-    $SUDO nix-env -iA n9.comtrya
+    $SUDO nix-env -iA n9.miniya
 fi
 
-# Generate config, using tee for dumping:
-tee .comtrya.yaml <<EOF
+tee .miniya.yaml <<EOF
 include_variables:
   - file+yaml:dev/$MACHINE.yaml
 
@@ -147,8 +148,5 @@ variables:
   secret: "$SECRET"
 EOF
 
-# Apply! TODO: Can we have only the nix, without comtrya's bootstrap?
-for STEP in nixos.s nixos.o; do
-    # shellcheck disable=SC2086
-    $SUDO $COMTRYA -c .comtrya.yaml -d $MANIFEST apply -m "$STEP"
-done
+# shellcheck disable=SC2086
+$SUDO $MINIYA -c .miniya.yaml -d . apply -m nixos.s

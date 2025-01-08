@@ -6,7 +6,8 @@ N9 is abbr of N-IX, so freaking bad joke.
 
 # .*
 
-Managed by [comtrya](https://github.com/comtrya/comtrya),
+Managed by [miniya](https://github.com/z1gc/miniya), a simplified fork version
+of [comtrya](https://github.com/comtrya/comtrya).
 
 ```bash
 # Defaults to /

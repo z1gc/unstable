@@ -7,7 +7,7 @@
 let
   callPackage = pkgs.lib.callPackageWith (pkgs // self);
   self = {
-    comtrya = callPackage ./pkgs/comtrya.nix {};
+    miniya = callPackage ./pkgs/miniya.nix {};
   };
 in
   self

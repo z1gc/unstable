@@ -1,14 +1,13 @@
-# 3rd stage (x): System installation
+# 3rd stage (x): device setup
 depends:
   - nixos.i
 
 actions:
-  # Last Step Ride
-  # ==============
-  - action: command.run
-    command: nixos-rebuild
-    args: [switch, --upgrade]
-    variants:
-      - where: "!vars.root.is_empty"
-        command: nixos-install
-        args: [--root, "{{ vars.root }}"]
+  # ARM64 on Hyper-V
+  - action: file.copy
+    where: (vars.hyperv ?? false) && (vars.arm64 ?? false)
+    from: kernel-harm.nix
+    owned_by_group: root
+    owned_by_user: root
+    template: true
+    to: "{{ vars.root }}/etc/nixos/kernel-harm.nix"

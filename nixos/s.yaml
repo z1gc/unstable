@@ -1,4 +1,8 @@
-# This isn't a (s) stage, it's -1 :)
+# 5th stage (s): post installation
+depends:
+  - nixos.o
+  - asterisk.post
+
 actions:
   # For git submodule, there will be an empty directory, remove it:
   - action: command.run

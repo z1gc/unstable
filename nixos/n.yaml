@@ -1,4 +1,4 @@
-# 1st stage (n): prepare dish + initial configuration
+# 1st stage (n): prepare disk, mounts
 actions:
   # Partition Disk
   # ==============
@@ -70,25 +70,3 @@ actions:
     where: "!vars.partition.is_empty && !vars.root.is_empty"
     command: swapon
     args: ["{{ vars.partition }}2"]
-  # NixOS Here
-  # ==========
-  # Should use the most recent NixOS ISO image to do a fresh install.
-  # And the `nixos-generate-config` should be used within Live CD.
-  - action: command.run
-    where: "!vars.root.is_empty"
-    command: nixos-generate-config
-    args: [--root, "{{ vars.root }}"]
-  - action: file.copy
-    from: configuration.nix
-    owned_by_group: root
-    owned_by_user: root
-    template: true
-    to: "{{ vars.root }}/etc/nixos/configuration.nix"
-  - action: directory.copy
-    from: snippet
-    to: "{{ vars.root }}/etc/nixos"
-  - action: command.run
-    command: nix-channel
-    xargs:
-      - [--add, "https://channels.nixos.org/nixos-{{ vars.channel }}", nixos]
-      - [--update]
