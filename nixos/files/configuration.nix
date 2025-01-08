@@ -122,7 +122,7 @@ in
       fish = { enable = true; } // import ./snippet/fish.nix { inherit pkgs; };
       bash = { enable = true; } // import ./snippet/bash.nix {};
       helix = {
-        enable = true; defaultEditor = true; package = pkgs.unstable.helix;
+        enable = true; defaultEditor = true;
       } // import ./snippet/helix.nix {};
       git = { enable = true; } // import ./snippet/git.nix {};
       ssh = tryImport { enable = true; } ./snippet/ssh.nix {};
