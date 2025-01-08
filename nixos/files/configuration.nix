@@ -129,15 +129,18 @@ in
     };
   });
 
-  networking.firewall.allowedTCPPorts = [ ] ++
+  networking.firewall.allowedTCPPorts = [
     # {% if vars.sshd %}
-    [ 22 ]
+    (lib.strings.toInt "{{ vars.sshd }}")
     # {% endif %}
-  ;
+  ];
   networking.firewall.allowedUDPPorts = [ ];
 
   # {% if vars.sshd %}
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    ports = [ (lib.strings.toInt "{{ vars.sshd }}") ];
+  };
   # {% endif %}
 
   # Copy the NixOS configuration file and link it from the resulting system

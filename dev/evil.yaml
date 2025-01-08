@@ -3,6 +3,3 @@ user: byte
 uid: 1000
 group: byte
 gid: 1000
-
-# optional:
-sshd: true

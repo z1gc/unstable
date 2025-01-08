@@ -5,6 +5,5 @@ group: byte
 gid: 1000
 
 # optional:
-sshd: true
 hyperv: true
 arm64: true

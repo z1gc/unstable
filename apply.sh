@@ -131,6 +131,7 @@ fi
 tee .miniya.yaml <<EOF
 include_variables:
   - dev/$MACHINE.yaml
+  - asterisk/dev/$MACHINE.yaml
 
 variables:
   machine: "$MACHINE"
