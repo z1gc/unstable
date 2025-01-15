@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Wrapper of nixos-anywhere and nixos-rebuild.
-# TODO: Install.
+# TODO: Install as a nix package.
 
 set -ue
 
@@ -10,7 +10,8 @@ function nixos-anywhere() {
   if [[ "$bin" != "" ]]; then
     sudo "$bin" "$@"
   else
-    sudo nix run github:nix-community/nixos-anywhere -- "$@"
+    sudo nix run --extra-experimental-features "nix-command flakes" \
+      github:nix-community/nixos-anywhere -- "$@"
   fi
 }
 
@@ -110,9 +111,6 @@ function main() {
       "-t")
         IFS=":" read -r ssh port <<<"$2"
         shift 2 ;;
-      "-"*)
-        help
-        exit ;;
       *)
         hostname="$1"
         shift ;;

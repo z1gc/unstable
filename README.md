@@ -1,24 +1,30 @@
 # N9
 
-.files of mine, mainly using NixOS.
+Configurations of mine, powered by NixOS + Flake :)
 
 N9 is abbr of N-IX, so freaking bad joke.
 
 # .*
 
-Managed by [miniya](https://github.com/z1gc/miniya), a simplified fork version
-of [comtrya](https://github.com/comtrya/comtrya).
+Setup with [nixos-anywhere](https://github.com/nix-community/nixos-anywhere),
+try to keep everything in one place.
+
+For setting things up:
 
 ```bash
-# Defaults to /
-./apply.sh evil
+# evil is one of my host. warning: it wipes disk
+sudo passwd
+curl -L ptr.ffi.fyi/n9 | bash -s -- setup -t root@localhost evil
 
-# Aha, new stuff
-./apply.sh evil /mnt
-
-# Or via network
-curl -L https://ptr.ffi.fyi/n9 | bash -s -- evil /mnt
-
-# Full wipe
-./apply.sh -p /dev/nvme0n1 -w evil /mnt
+# rebuild and switch
+./burn.sh switch
 ```
+
+For path structure:
+
+* asterisk: contains scripts to setup secrets, avoid exposing to `/nix/store`
+* burn.sh:  helper script for setup machine
+* nixos:    everything inside
+* pkgs:     some self-maintained packages
+
+Break it!
