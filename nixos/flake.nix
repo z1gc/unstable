@@ -1,7 +1,7 @@
 # To build and test:
 # nix build --print-out-paths --no-link --no-write-lock-file ".#nixosConfigurations.evil.config.system.build.toplevel"
 # Replace "evil" to other machine can test theirs'.
-# For (print) debug, `builtins.trace` can help a lot.
+# For (print) debug, `builtins.trace` can help a lot, or `lib.traceVal`.
 # P.S. Remember to stage files to git, in order the flake can find them.
 
 {

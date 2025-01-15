@@ -4,9 +4,20 @@
 
 set -ue
 
+# Affects only local machine:
+function sudo() {
+  if [[ "$USER" == "root" ]]; then
+    "$@"
+  elif [[ -e /etc/NIXOS ]]; then
+    $(which sudo) "$@"
+  else
+    $(which sudo) -i bash -c "cd $PWD && $(printf '"%s" ' "$@")"
+  fi
+}
+
 function nixos-anywhere() {
   # shellcheck disable=SC2155
-  local bin="$(which nixos-nixos-anywhere)"
+  local bin="$(which nixos-anywhere)"
   if [[ "$bin" != "" ]]; then
     sudo "$bin" "$@"
   else
@@ -39,9 +50,11 @@ EOF
 
 function init() {
   cd "$(dirname "${BASH_SOURCE[0]}")"
-  git pull --rebase --recurse-submodules || true
-  chmod -R g-rw,o-rw asterisk
-  cd nixos
+  pushd nixos 1> /dev/null
+}
+
+function deinit() {
+  popd 1> /dev/null
 }
 
 function setup() {
@@ -79,10 +92,11 @@ function help() {
   echo "    switch            Make a nixos-rebuild switch"
   echo "    -t USER@HOST:PORT Remote, a ssh connection"
   echo "If nothing, HOSTNAME will set to \"$(hostname)\""
+  return 1
 }
 
 function main() {
-  local op="" ssh port hostname args=("$@")
+  local op=help ssh port hostname args=("$@")
   while [[ "${1:-}" != "" ]]; do
     case "${1:-}" in
       "setup"|"switch")
@@ -97,16 +111,13 @@ function main() {
     esac
   done
 
-  if [[ "$op" == "" ]]; then
-    help
-    exit
-  fi
-
   init
   $op "${ssh:-}" "${port:-}" "${hostname:-"$(hostname)"}"
+  deinit
 
-  if [[ -x "../asterisk/setup.sh" ]]; then
-    ../asterisk/setup.sh "${args[@]}"
+  if [[ -x "asterisk/setup.sh" ]]; then
+    chmod -R g-rw,o-rw asterisk
+    asterisk/setup.sh "${args[@]}"
   fi
 }
 

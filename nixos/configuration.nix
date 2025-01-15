@@ -1,4 +1,7 @@
 # AttrSet of system.
+# Notice, the `//` operator only works with one level (and doesn't recurse),
+# for all attrs to be merged the `lib.recursiveUpdate` must be used!
+
 { subconf, pkgs, lib, ... }:
 
 let
@@ -6,7 +9,7 @@ let
   arm64 = subconf.system == "aarch64-linux";
   hyperv = subconf.hyperv or false;
   gnome = subconf.gnome or false;
-in {
+in lib.recursiveUpdate {
   imports = [
     ./disko.nix
     ./home.nix
@@ -87,12 +90,13 @@ in {
 
   # TODO: system.copySystemConfiguration = true; Flake doesn't support it.
   system.stateVersion = "24.11";
-} // lib.optionalAttrs (arm64 && hyperv) {
-  # Hyper-V and ARM64
+}
+
+(lib.optionalAttrs (arm64 && hyperv) {
   boot.kernelPackages = pkgs.wsl2Kernel;
 
   virtualisation.hypervGuest = {
     enable = true;
     videoMode = "1280x720";
   };
-}
+})
