@@ -3,13 +3,10 @@
 
 {
   # Required:
-  system = "x86_64-linux";
+  system = "aarch64-linux";
   hostid = "2bff42a8";
   disk.first = "/dev/sda";
-  user = { name = "byte"; uid = 1000; };
-  group = { name = "byte"; gid = 1000; };
 
   # Optional:
   hyperv = true;
-  gnome = true;
 }

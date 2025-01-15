@@ -30,8 +30,14 @@
     in {
       nixosConfigurations = lib.genAttrs hosts (hostname:
         let
-          subconf = { inherit hostname; } //
-            (import ./${hostname}/configuration.nix);
+          defconf = {
+            inherit hostname;
+            user = { name = "byte"; uid = 1000; };
+            group = { name = "byte"; gid = 1000; };
+          };
+
+          # Can be overrided by host's configuration.nix:
+          subconf = defconf // (import ./${hostname}/configuration.nix);
         in lib.nixosSystem {
           system = subconf.system;
 

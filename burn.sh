@@ -98,18 +98,26 @@ function help() {
 }
 
 function main() {
-  local op="" secret ssh port args=("$@")
-  case "${1:-}" in
-    "setup"|"switch")
-      op=$1
-      shift ;;
-    "-s")
-      secret="$2"
-      shift 2 ;;
-    "-t")
-      IFS=":" read -r ssh port <<<"$2"
-      shift 2 ;;
-  esac
+  local op="" secret ssh port hostname args=("$@")
+  while [[ "${1:-}" != "" ]]; do
+    case "${1:-}" in
+      "setup"|"switch")
+        op=$1
+        shift ;;
+      "-s")
+        secret="$2"
+        shift 2 ;;
+      "-t")
+        IFS=":" read -r ssh port <<<"$2"
+        shift 2 ;;
+      "-"*)
+        help
+        exit ;;
+      *)
+        hostname="$1"
+        shift ;;
+    esac
+  done
 
   if [[ "$op" == "" ]]; then
     help
@@ -117,7 +125,7 @@ function main() {
   fi
 
   init "${secret:-}"
-  $op "${ssh:-}" "${port:-}" "${1:-"$(hostname)"}"
+  $op "${ssh:-}" "${port:-}" "${hostname:-"$(hostname)"}"
 
   if [[ -x "../asterisk/setup.sh" ]]; then
     ../asterisk/setup.sh "${args[@]}"
