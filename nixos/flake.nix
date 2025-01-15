@@ -28,19 +28,24 @@
           dirs = builtins.filter (dir: dir.value == "directory") contents;
         in builtins.map (dir: dir.name) dirs;
     in {
-      nixosConfigurations = lib.genAttrs hosts (hostname: lib.nixosSystem {
-        # https://www.reddit.com/r/NixOS/comments/1bqzg78/comment/kx64qh1/
-        specialArgs.subconf = { inherit hostname; } //
-          (import ./${hostname}/configuration.nix);
+      nixosConfigurations = lib.genAttrs hosts (hostname:
+        let
+          subconf = { inherit hostname; } //
+            (import ./${hostname}/configuration.nix);
+        in lib.nixosSystem {
+          system = subconf.system;
 
-        # @see nixpkgs/flake.nix::nixosSystem
-        modules = [
-          disko.nixosModules.disko
-          ./${hostname}/hardware-configuration.nix
-          ./overlay.nix
-          home-manager.nixosModules.home-manager
-          ./configuration.nix
-        ];
-      });
+          # https://www.reddit.com/r/NixOS/comments/1bqzg78/comment/kx64qh1/
+          specialArgs = { inherit subconf; };
+
+          # @see nixpkgs/flake.nix::nixosSystem
+          modules = [
+            disko.nixosModules.disko
+            ./${hostname}/hardware-configuration.nix
+            ./overlay.nix
+            home-manager.nixosModules.home-manager
+            ./configuration.nix
+          ];
+        });
     };
 }

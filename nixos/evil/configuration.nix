@@ -3,6 +3,7 @@
 
 {
   # Required:
+  system = "x86_64-linux";
   hostid = "2bff42a7";
   disk.first = "/dev/nvme0n1";
   user = { name = "byte"; uid = 1000; };

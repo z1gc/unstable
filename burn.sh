@@ -8,15 +8,15 @@ function nixos-anywhere() {
   # shellcheck disable=SC2155
   local bin="$(which nixos-nixos-anywhere)"
   if [[ "$bin" != "" ]]; then
-    $bin "$@"
+    sudo "$bin" "$@"
   else
-    nix run github:nix-community/nixos-anywhere -- "$@"
+    sudo nix run github:nix-community/nixos-anywhere -- "$@"
   fi
 }
 
 function nixos-hardware() {
   local ssh="$1" port="$2" hostname="$3" \
-    cmd=(nixos-generate-config --no-filesystems --show-hardware-config)
+    cmd=(sudo nixos-generate-config --no-filesystems --show-hardware-config)
 
   if [[ "$ssh" != "" ]]; then
     local args=()
@@ -87,7 +87,7 @@ function switch() {
   fi
 
   nixos-hardware "$ssh" "$port" "$hostname"
-  nixos-rebuild switch --flake ".#$hostname" "${args[@]}"
+  sudo nixos-rebuild switch --flake ".#$hostname" "${args[@]}"
 }
 
 function help() {
@@ -98,7 +98,7 @@ function help() {
 }
 
 function main() {
-  local op="" secret ssh port skip=false args=("$@")
+  local op="" secret ssh port args=("$@")
   case "${1:-}" in
     "setup"|"switch")
       op=$1
@@ -109,9 +109,6 @@ function main() {
     "-t")
       IFS=":" read -r ssh port <<<"$2"
       shift 2 ;;
-    "-n")
-      skip=true
-      shift ;;
   esac
 
   if [[ "$op" == "" ]]; then
@@ -119,15 +116,9 @@ function main() {
     exit
   fi
 
-  if ! $skip; then
-    init "${secret:-}"
-  fi
-
-  if [[ "$USER" != "root" ]]; then
-    exec sudo ../burn.sh -n "${args[@]}"
-  fi
-
+  init "${secret:-}"
   $op "${ssh:-}" "${port:-}" "${1:-"$(hostname)"}"
+
   if [[ -x "../asterisk/setup.sh" ]]; then
     ../asterisk/setup.sh "${args[@]}"
   fi

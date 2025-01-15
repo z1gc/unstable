@@ -1,9 +1,9 @@
 # AttrSet of system.
-{ nixpkgs, subconf, pkgs, lib, ... }:
+{ subconf, pkgs, lib, ... }:
 
 let
   inherit (lib) optionals;
-  arm64 = nixpkgs.hostPlatform == "aarch64-linux";
+  arm64 = subconf.system == "aarch64-linux";
   hyperv = subconf.hyperv or false;
   gnome = subconf.gnome or false;
 in {
