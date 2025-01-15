@@ -58,11 +58,7 @@ function init() {
 
   git pull --rebase --recurse-submodules || true
   chmod -R g-rw,o-rw asterisk
-  pushd nixos 1> /dev/null
-}
-
-function deinit() {
-  popd 1> /dev/null
+  cd nixos
 }
 
 function setup() {
@@ -96,15 +92,13 @@ function switch() {
 
 function help() {
   echo "$0 [OPTIONS] HOSTNAME"
-  echo "    -h        This (un)helpful message"
   echo "    -s SECRET Asterisk, give me a secret"
   echo "    -t SSH    Remote, format as \"HOST:PORT\""
   echo "If nothing, HOSTNAME will set to $(hostname)"
-  exit
 }
 
 function main() {
-  local op=help secret ssh port args=("$@")
+  local op="" secret ssh port skip=false args=("$@")
   case "${1:-}" in
     "setup"|"switch")
       op=$1
@@ -115,16 +109,27 @@ function main() {
     "-t")
       IFS=":" read -r ssh port <<<"$2"
       shift 2 ;;
-    "-h")
-      help ;;
+    "-n")
+      skip=true
+      shift ;;
   esac
 
-  init "${secret:-}"
-  $op "${ssh:-}" "${port:-}" "${1:-"$(hostname)"}"
-  deinit
+  if [[ "$op" == "" ]]; then
+    help
+    exit
+  fi
 
-  if [[ -x "asterisk/setup.sh" ]]; then
-    asterisk/setup.sh "${args[@]}"
+  if ! $skip; then
+    init "${secret:-}"
+  fi
+
+  if [[ "$USER" != "root" ]]; then
+    exec sudo ../setup.sh "${args[@]}" -n
+  fi
+
+  $op "${ssh:-}" "${port:-}" "${1:-"$(hostname)"}"
+  if [[ -x "../asterisk/setup.sh" ]]; then
+    ../asterisk/setup.sh "${args[@]}"
   fi
 }
 
