@@ -26,6 +26,8 @@
           contents = lib.attrsToList (builtins.readDir ./dev);
           dirs = builtins.filter (dir: dir.value == "directory") contents;
         in builtins.map (dir: dir.name) dirs;
+
+      asterisk = lib.pathIsRegularFile ./asterisk/configuration.nix;
     in {
       nixosConfigurations = lib.genAttrs hosts (hostname:
         let
@@ -53,6 +55,9 @@
             ./pkgs/configuration.nix
             home-manager.nixosModules.home-manager
             ./nixos/configuration.nix
+          ] ++ lib.optionals asterisk [
+            # asterisk
+            ./asterisk/configuration.nix
           ];
         });
     };

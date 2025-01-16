@@ -1,4 +1,9 @@
 HOSTNAME ?= $(shell hostname)
+
+$(shell git pull --rebase --recurse-submodules)
+$(shell chmod -R g-rw,o-rw asterisk)
+
+# Main here:
 HWCONF = dev/${HOSTNAME}/hardware-configuration.nix
 
 ${HWCONF}:
@@ -14,14 +19,16 @@ setup: ${HWCONF}
 		".#${HOSTNAME}"
 	if test -f asterisk/Makefile; then ${MAKE} -C asterisk setup; fi
 
+# If within the installer, hmmm, that may be fine, or you may simply OOM.
 switch: ${HWCONF}
 	sudo nixos-rebuild switch --no-write-lock-file --flake ".#${HOSTNAME}"
 	sudo nix-env --delete-generations +7
 	if test -f asterisk/Makefile; then ${MAKE} -C asterisk switch; fi
 
-clean:
+gc:
 	sudo nix-store --gc
 
-.PHONY: setup switch clean
+# Meta here:
+.PHONY: setup switch gc
 .NOTPARALLEL:
 .DEFAULT_GOAL = switch
