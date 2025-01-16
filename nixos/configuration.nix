@@ -43,6 +43,7 @@ in lib.recursiveUpdate {
 
     # For basically the other user and the desktop, don't use it too much:
     systemPackages = with pkgs; [
+      gnumake
       git
       helix
     ] ++ lib.optionals gnome [
