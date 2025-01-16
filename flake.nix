@@ -21,10 +21,9 @@
     let
       lib = nixpkgs.lib;
 
-      # TODO: Stick to current hostname only?
       hosts =
         let
-          contents = lib.attrsToList (builtins.readDir ./.);
+          contents = lib.attrsToList (builtins.readDir ./dev);
           dirs = builtins.filter (dir: dir.value == "directory") contents;
         in builtins.map (dir: dir.name) dirs;
     in {
@@ -37,7 +36,7 @@
           };
 
           # Can be overrided by host's configuration.nix:
-          subconf = defconf // (import ./${hostname}/configuration.nix);
+          subconf = defconf // (import ./dev/${hostname}/configuration.nix);
         in lib.nixosSystem {
           system = subconf.system;
 
@@ -46,11 +45,13 @@
 
           # @see nixpkgs/flake.nix::nixosSystem
           modules = [
+            # hardware
             disko.nixosModules.disko
-            ./${hostname}/hardware-configuration.nix
-            ./overlay.nix
+            ./dev/${hostname}/hardware-configuration.nix
+
+            # system
             home-manager.nixosModules.home-manager
-            ./configuration.nix
+            ./nixos/configuration.nix
           ];
         });
     };

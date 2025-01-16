@@ -42,6 +42,8 @@ in {
         # Devel
         nixd
         clang-tools
+        bash-language-server
+        shellcheck
       ] ++ lib.optionals gnome [
         # Devel
         jetbrains.clion
