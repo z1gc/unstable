@@ -45,10 +45,11 @@ in {
         };
 
         brave = super.brave.override (prev: {
-          commandLineArgs = (prev.commandLineArgs or "") + ''
-            --wayland-text-input-version=3
-            --sync-url=https://brave-sync.pteno.cn/v2
-          '';
+          commandLineArgs = (prev.commandLineArgs or "") + " " +
+            builtins.concatStringsSep " " [
+              "--wayland-text-input-version=3"
+              "--sync-url=https://brave-sync.pteno.cn/v2"
+            ];
         });
 
         linuxKernelWSL2 = pkgs.linuxPackagesFor linuxKernelWSL2;

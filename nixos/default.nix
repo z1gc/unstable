@@ -55,7 +55,10 @@ in lib.recursiveUpdate {
     ]);
 
     # Why not in services?
-    gnome.excludePackages = [ pkgs.gnome-tour ];
+    gnome.excludePackages = with pkgs; [
+      gnome-tour
+      gnome-shell-extensions
+    ];
   };
 
   time.timeZone = "Asia/Shanghai";
