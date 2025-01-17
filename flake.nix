@@ -44,8 +44,9 @@
 
       nixosConfigurations = lib.genAttrs hosts (hostname:
         let
+          # Device/machine configuration:
           subconf = substanceConfigurations."${hostname}";
-          asterisk = ./asterisk/${hostname};
+          asterisk = ./asterisk/dev/${hostname};
         in lib.nixosSystem {
           inherit (subconf) system;
 
@@ -62,7 +63,7 @@
             # configuration:
             ./nixos
             subconf.toplevel
-          ] ++ lib.optionals (lib.pathIsRegularFile asterisk) [
+          ] ++ lib.optionals (lib.pathIsDirectory asterisk) [
             asterisk
           ];
         });

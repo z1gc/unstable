@@ -6,6 +6,7 @@ $(shell git pull --rebase --recurse-submodules 1>&2)
 $(shell chmod -R g-rw,o-rw asterisk 1>&2)
 
 # Main here:
+FLAKE = .?submodules=1
 HWCONF = dev/${HOSTNAME}/hardware-configuration.nix
 
 ${HWCONF}:
@@ -15,16 +16,16 @@ setup: ${HWCONF}
 	grep -Eq 'VARIANT_ID="?installer"?' /etc/os-release
 	nix build --extra-experimental-features "nix-command flakes" --no-link \
 		--print-out-paths --no-write-lock-file \
-		".#nixosConfiguration.${HOSTNAME}.config.system.build.diskoScript" \
+		"${FLAKE}#nixosConfiguration.${HOSTNAME}.config.system.build.diskoScript" \
 		| sudo bash -s
 	sudo nixos-install --no-root-password --no-channel-copy --flake \
-		".#${HOSTNAME}"
+		"${FLAKE}#${HOSTNAME}"
 	if test -f asterisk/Makefile; then ${MAKE} -C asterisk setup; fi
 
 # If within the installer, hmmm, that may be fine, or you may simply OOM.
 switch: ${HWCONF}
 	sudo rm -f flake.lock
-	sudo nixos-rebuild switch --flake ".#${HOSTNAME}"
+	sudo nixos-rebuild switch --flake "${FLAKE}#${HOSTNAME}"
 	sudo nix-env --delete-generations +7
 	if test -f asterisk/Makefile; then ${MAKE} -C asterisk switch; fi
 

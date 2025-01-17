@@ -7,11 +7,15 @@
     
       # https://nixos.wiki/wiki/Fish
       bashrcExtra = ''
-        if [[ $(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm) != "fish" && -z ''${BASH_EXECUTION_STRING} ]]
-        then
-          shopt -q login_shell && LOGIN_OPTION='--login' || LOGIN_OPTION=""
-          exec ${pkgs.fish}/bin/fish $LOGIN_OPTION
-        fi
+        case "$(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm)" in
+        "fish"|"systemd")
+          ;;
+        *)
+          if [[ -z ''${BASH_EXECUTION_STRING} && ''${SHLVL} == 1 ]]; then
+            shopt -q login_shell && LOGIN_OPTION='--login' || LOGIN_OPTION=""
+            exec ${pkgs.fish}/bin/fish $LOGIN_OPTION
+          fi ;;
+        esac
       '';
     };
 
@@ -27,10 +31,6 @@
             rev = "fe2693e80558550e0d995856332b280eb86fde19";
             hash = "sha256-EPgvY8gozMzai0qeDH2dvB4tVvzVqfEtPewgXH6SPGs=";
           };
-        }
-        {
-          name = "grc";
-          src = pkgs.fishPlugins.grc.src;
         }
         {
           name = "upto";

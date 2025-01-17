@@ -36,8 +36,9 @@ in {
         fd
         fzf
         sysstat
-        grc
         lm_sensors
+        bcc
+        bpftrace
 
         # Devel
         nixd
@@ -45,6 +46,9 @@ in {
         bash-language-server
         shellcheck
       ] ++ lib.optionals gnome [
+        # Shell
+        wl-clipboard
+
         # Devel
         jetbrains.clion
       ];
