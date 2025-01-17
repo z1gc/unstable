@@ -1,4 +1,4 @@
-HOSTNAME ?= $(shell hostname)
+export HOSTNAME ?= $(shell hostname)
 
 # The make will treat the result/outpu of `$(shell)` as a receipt, therefore
 # we need to clear out the stdout.
@@ -23,7 +23,8 @@ setup: ${HWCONF}
 
 # If within the installer, hmmm, that may be fine, or you may simply OOM.
 switch: ${HWCONF}
-	sudo nixos-rebuild switch --no-write-lock-file --flake ".#${HOSTNAME}"
+	sudo rm -f flake.lock
+	sudo nixos-rebuild switch --flake ".#${HOSTNAME}"
 	sudo nix-env --delete-generations +7
 	if test -f asterisk/Makefile; then ${MAKE} -C asterisk switch; fi
 

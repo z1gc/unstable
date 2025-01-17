@@ -45,10 +45,14 @@ in lib.recursiveUpdate {
       gnumake
       git
       helix
-    ] ++ lib.optionals gnome [
+    ] ++ lib.optionals gnome (with gnomeExtensions; [
       brave
       ptyxis
-    ];
+
+      # TODO: dconf for extensions?
+      pop-shell
+      customize-ibus
+    ]);
 
     # Why not in services?
     gnome.excludePackages = [ pkgs.gnome-tour ];
@@ -58,7 +62,6 @@ in lib.recursiveUpdate {
   i18n = {
     defaultLocale = "zh_CN.UTF-8";
 
-    # TODO: Rime-ice?
     inputMethod = lib.optionalAttrs gnome {
       enable = true;
       type = "ibus";

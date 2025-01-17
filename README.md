@@ -5,13 +5,14 @@ NixOS configurations of mine.
 # .*
 
 ```nix
-{ stdenv, ... }:
+{ stdenv, gnumake, ... }:
 
 stdenv.mkDerivation {
-  pname = "n9";
-  version = "unstable";
-  meta = { description = "N-IX"; };
+  # n-ix, yes, the n9 :O
+  pname = "n";
+  version = "ix";
 
+  buildInputs = [ gnumake ];
   buildPhase = "make setup";
   installPhase = "make switch";
 }
