@@ -17,7 +17,6 @@
       # kind of noisy :/
       ({ pkgs, ... }@args: mkHomeManager {
         user = "byte";
-        uid = 1000;
 
         packages = with pkgs; [
           git-repo

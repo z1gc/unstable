@@ -8,8 +8,13 @@
 
 { lib, ... }:  # <- Nix `imports = []`
 let
+  efiMount = "/efi";
+
   base = {
     imports = [ disko.nixosModules.disko ];
+
+    # Think it's better here, with the disk and partitions?
+    boot.loader.efi.efiSysMountPoint = efiMount;
 
     disko.devices.disk.first = {
       type = "disk";
@@ -24,7 +29,7 @@ let
           content = {
             type = "filesystem";
             format = "vfat";
-            mountpoint = "/efi"; mountOptions = [ "umask=0077" ];
+            mountpoint = efiMount; mountOptions = [ "umask=0077" ];
           };
         };
 

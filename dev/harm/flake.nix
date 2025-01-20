@@ -10,7 +10,6 @@
 
       (mkHomeManager {
         user = "byte";
-        uid = 1000;
 
         modules = with n9.lib.home-modules; [
           (mkHelix {})
@@ -21,6 +20,7 @@
       ({ pkgs, ... }: {
         boot.kernelPackages = pkgs.linuxPackagesFor
           (pkgs.callPackage ./pkgsLinuxKernelWSL2.nix {});
+
         virtualisation.hypervGuest = {
           enable = true;
           videoMode = "1280x720";

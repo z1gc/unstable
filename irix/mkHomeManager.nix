@@ -7,7 +7,14 @@
 # @input home.gid: The main GID of this user, blank for same as the UID.
 # @input packages: Passthru to home-manager.users.${user}.home.packages.
 # @input modules: Imports from.
-{ user, group ? user, uid, gid ? uid, packages ? [], modules ? [] }:
+{
+  user,
+  group ? user,
+  uid ? 1000,
+  gid ? uid,
+  packages ? [],
+  modules ? []
+}:
 
 { ... }:
 let

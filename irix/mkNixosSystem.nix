@@ -4,11 +4,13 @@
 # TODO: mkIf style configurations? It loses flexibility.
 # @input dir: To obtain the hostname with a relative simple way.
 # @input sys: Passed to nixosSystem, then eval-config.
-dir:  # <- Module arguments
+hostNameOrDir:  # <- Module arguments
 
 sys:  # <- NixOS `nixosSystem {}` (Hmm, not really)
 let
-  hostName = builtins.baseNameOf dir;
+  hostName = if builtins.typeOf hostNameOrDir == "path"
+    then builtins.baseNameOf hostNameOrDir
+    else hostNameOrDir;
   hostId = builtins.substring 63 8 (builtins.hashString "sha512" hostName);
 in {
   nixosConfigurations.${hostName} = nixpkgs.lib.nixosSystem {
@@ -16,7 +18,6 @@ in {
       ({ pkgs, ... }: {
         boot.loader = {
           systemd-boot.enable = true;
-          efi.efiSysMountPoint = "/efi";
           efi.canTouchEfiVariables = true;
         };
 
