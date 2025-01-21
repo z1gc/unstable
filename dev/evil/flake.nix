@@ -1,36 +1,30 @@
 {
   inputs.n9.url = "../../irix";
-  inputs.asterisk.url = "../../asterisk";
 
-  outputs = { n9, asterisk, ... }:
-    let hostName = "evil";
-    in n9.lib.mkNixosSystem hostName {
-      system = "x86_64-linux";
+  outputs =
+    { self, n9, ... }:
+    {
+      system = "x86_64-linux"; # to `let`, or to `rec`?
 
-      modules = with n9.lib.modules; [
-        ./hardware-configuration.nix
-        (mkDisk {
-          type = "zfs";
-          device = "/dev/nvme0n1";
-        })
+      nixosConfigurations = n9.lib.nixos self {
+        inherit (self) system;
+        modules = with n9.lib.nixos-modules; [
+          ./hardware-configuration.nix
+          (disk.zfs "/dev/nvme0n1")
+          desktop.gnome
+        ];
+      };
 
-        (mkGnome {})
+      homeConfigurations = n9.lib.home "byte" {
+        packages = [
+          "git-repo"
+          "jetbrains.clion"
+        ];
 
-        # TODO: To handle the pkgs better, nixpkgs.legacyPackages.${system} is
-        # kind of noisy :/
-        ({ pkgs, ... }@args: mkHomeManager {
-          user = "byte";
-
-          packages = with pkgs; [
-            git-repo
-            jetbrains.clion
-          ];
-          modules = with n9.lib.home-modules; [
-            (mkHelix {})
-            (mkFish {})
-            (asterisk.lib.mkAsterisk { inherit hostName; })
-          ];
-        } args)
-      ];
+        modules = with n9.lib.home-modules; [
+          editor.helix
+          shell.fish
+        ];
+      };
     };
 }

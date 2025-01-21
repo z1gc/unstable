@@ -3,12 +3,20 @@
 # If updated, you might need to run `ibus-daemon -drx` for taking effects.
 
 # From pkgs? args == pkgs?
-{ lib, stdenv, fetchFromGitHub, fetchpatch, librime, ... }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  fetchpatch,
+  librime,
+  ...
+}:
 
 let
   pname = "rime-ice";
   version = "298b3967b84ba49e4cd6e0f9595de60517d76f4e";
-in stdenv.mkDerivation {
+in
+stdenv.mkDerivation {
   inherit pname version;
 
   src = fetchFromGitHub {

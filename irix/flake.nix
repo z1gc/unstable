@@ -19,22 +19,30 @@
     };
   };
 
-  outputs = { ... }@args: {
-    # NixOS, Nix (For package manager only, use lib.mkNixPackager?):
-    # TODO: With no hard code?
-    lib.mkNixosSystem = import ./mkNixosSystem.nix args;
+  outputs =
+    { ... }@args:
+    let
+      # TODO: Modular!
+      disk =
+        args: type: device:
+        (import ./disk args) { inherit type device; };
+    in
+    {
+      # NixOS, Nix (For package manager only, use lib.mkNixPackager?):
+      # TODO: With no hard code?
+      lib.nixos = import ./nixos.nix args;
+      lib.nixos-modules = {
+        disk.zfs = disk args "zfs";
+        disk.btrfs = disk args "btrfs";
+        desktop.gnome = import ./desktop/gnome.nix args;
+      };
 
-    # System level modules, may for NixOS only:
-    lib.modules = {
-      mkDisk = import ./mkDisk.nix args;
-      mkGnome = import ./mkGnome.nix args;
-      mkHomeManager = import ./mkHomeManager.nix args;
-    };
-
-    # User/home level modules, with home-manager:
-    lib.home-modules = {
-      mkHelix = import ./mkHelix.nix args;
-      mkFish = import ./mkFish.nix args;
-    };
-  } // args;  # Should we?
+      # User/home level modules, with home-manager:
+      lib.home = import ./home.nix args;
+      lib.home-modules = {
+        editor.helix = import ./editor/helix.nix args;
+        shell.fish = import ./shell/fish.nix args;
+      };
+    }
+    // args;
 }

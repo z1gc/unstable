@@ -1,31 +1,35 @@
 {
   inputs.n9.url = "../../irix";
 
-  outputs = { n9, ... }: n9.lib.mkNixosSystem ./. {
-    system = "aarch64-linux";
+  outputs =
+    { n9, ... }:
+    n9.lib.mkNixosSystem ./. {
+      system = "aarch64-linux";
 
-    modules = with n9.lib.modules; [
-      ./hardware-configuration.nix
-      (mkDisk { device = "/dev/sda"; })
+      modules = with n9.lib.modules; [
+        ./hardware-configuration.nix
+        (mkDisk { device = "/dev/sda"; })
 
-      (mkHomeManager {
-        user = "byte";
+        (mkHomeManager {
+          user = "byte";
 
-        modules = with n9.lib.home-modules; [
-          (mkHelix {})
-          (mkFish {})
-        ];
-      })
+          modules = with n9.lib.home-modules; [
+            (mkHelix { })
+            (mkFish { })
+          ];
+        })
 
-      ({ pkgs, ... }: {
-        boot.kernelPackages = pkgs.linuxPackagesFor
-          (pkgs.callPackage ./pkgsLinuxKernelWSL2.nix {});
+        (
+          { pkgs, ... }:
+          {
+            boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.callPackage ./pkgsLinuxKernelWSL2.nix { });
 
-        virtualisation.hypervGuest = {
-          enable = true;
-          videoMode = "1280x720";
-        };
-      })
-    ];
-  };
+            virtualisation.hypervGuest = {
+              enable = true;
+              videoMode = "1280x720";
+            };
+          }
+        )
+      ];
+    };
 }
