@@ -52,11 +52,11 @@
       "locked": {
         "lastModified": 1,
         "narHash": "sha256-mWuZVpKp2AxaC41+mMcZmd91UdjJ5iAR859Ov7K3ED4=",
-        "path": "/nix/store/917zkg59qc0nn0plal5vqznfz7rd49q8-source/irix",
+        "path": "/nix/store/pyf3nsvcmq31mbrbvphr2lql66wm4rvq-source/irix",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/917zkg59qc0nn0plal5vqznfz7rd49q8-source/irix",
+        "path": "/nix/store/pyf3nsvcmq31mbrbvphr2lql66wm4rvq-source/irix",
         "type": "path"
       }
     },

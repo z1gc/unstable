@@ -6,7 +6,7 @@ endif
 
 # The make will treat the result/outpu of `$(shell)` as a receipt, therefore
 # we need to clear out the stdout.
-$(shell git pull --rebase --recurse-submodules 1>&2)
+$(shell su $$(stat -c %U .git) -c "git pull --rebase --recurse-submodules" 1>&2)
 $(shell chmod -R g-rw,o-rw asterisk 1>&2)
 
 # Main here:
