@@ -27,18 +27,18 @@ buildLinux (
 
     # @see nixpkgs/nixos/modules/system/boot/kernel.nix
     structuredExtraConfig = with lib.kernel; {
-      CONFIG_HYPERV_VSOCKETS = yes;
-      CONFIG_PCI_HYPERV = yes;
-      CONFIG_PCI_HYPERV_INTERFACE = yes;
-      CONFIG_HYPERV_STORAGE = yes;
-      CONFIG_HYPERV_NET = yes;
-      CONFIG_HYPERV_KEYBOARD = yes;
-      CONFIG_FB_HYPERV = module;
-      CONFIG_HID_HYPERV_MOUSE = module;
-      CONFIG_HYPERV = yes;
-      CONFIG_HYPERV_TIMER = yes;
-      CONFIG_HYPERV_UTILS = yes;
-      CONFIG_HYPERV_BALLOON = yes;
+      HYPERV_VSOCKETS = module;
+      PCI_HYPERV = yes;
+      PCI_HYPERV_INTERFACE = yes;
+      HYPERV_STORAGE = module;
+      HYPERV_NET = yes;
+      HYPERV_KEYBOARD = yes;
+      FB_HYPERV = module;
+      HID_HYPERV_MOUSE = module;
+      HYPERV = yes;
+      HYPERV_TIMER = yes;
+      HYPERV_UTILS = yes;
+      HYPERV_BALLOON = yes;
     };
 
     extraMeta = {

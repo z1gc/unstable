@@ -51,12 +51,12 @@
       },
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-mWuZVpKp2AxaC41+mMcZmd91UdjJ5iAR859Ov7K3ED4=",
-        "path": "/nix/store/pyf3nsvcmq31mbrbvphr2lql66wm4rvq-source/irix",
+        "narHash": "sha256-kOX0XltsvwOeIRds3joUw5G+XfErgRpDLz0LlQTM1+g=",
+        "path": "/nix/store/xg1mc8w11803qvls43jqivzr9zbgkymn-source/irix",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/pyf3nsvcmq31mbrbvphr2lql66wm4rvq-source/irix",
+        "path": "/nix/store/xg1mc8w11803qvls43jqivzr9zbgkymn-source/irix",
         "type": "path"
       }
     },
