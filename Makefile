@@ -4,13 +4,19 @@ endif
 
 export HOSTNAME ?= $(shell hostname)
 
+ifneq (${SUDO_USER},)
+RUNAS = su "${SUDO_USER}"
+else
+RUNAS = su "$(shell stat -c %U .git)"
+endif
+
 # The make will treat the result/outpu of `$(...)` as a receipt, therefore we
 # need to clear out the stdout.
-$(shell su $$(stat -c %U .git) -c "git pull --rebase --recurse-submodules" 1>&2)
+$(shell ${RUNAS} -c "git pull --rebase --recurse-submodules" 1>&2)
 $(shell chmod -R g-rw,o-rw asterisk 1>&2)
 
-FLAKE = ./dev/${HOSTNAME}
-HWCONF = dev/${HOSTNAME}/hardware-configuration.nix
+FLAKE = ./octothorp/${HOSTNAME}
+HWCONF = octothorp/${HOSTNAME}/hardware-configuration.nix
 
 ${HWCONF}:
 	nixos-generate-config --no-filesystems --show-hardware-config > "$@"
@@ -25,15 +31,14 @@ setup: ${HWCONF}
 		"${FLAKE}#${HOSTNAME}"
 	if test -f asterisk/Makefile; then ${MAKE} -C asterisk setup; fi
 
-switch: ${HWCONF}
-	rm -f "dev/${HOSTNAME}/flake.lock"
+garbage:
+	nix-collect-garbage --delete-older-than 2d
+	${RUNAS} -c "nix-collect-garbage --delete-older-than 2d"
+
+switch: ${HWCONF} garbage
+	rm -f "octothorp/${HOSTNAME}/flake.lock"
 	nixos-rebuild switch --show-trace --flake "${FLAKE}#${HOSTNAME}"
-	nix-env --profile /nix/var/nix/profiles/system --delete-generations +7
 	if test -f asterisk/Makefile; then ${MAKE} -C asterisk switch; fi
 
-garbage:
-	nix-store --gc
-
-.PHONY: setup switch garbage
-.NOTPARALLEL:
+.PHONY: setup garbage switch
 .DEFAULT_GOAL = switch
