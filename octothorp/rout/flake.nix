@@ -15,25 +15,11 @@
       packages.x86_64-linux.default =
         let
           inherit (nixpkgs) lib;
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
 
           target = "x86";
           variant = "64";
           profile = "generic";
-
-          # Try to remove all kmods, the profiles is cached from `profiles.json`
-          # to `cached-profiles/${version}.nix`, and when building, the real
-          # profiles will be fetched by `fetchurl`. That's fine because OpenWRT
-          # will seldomly change the profiles, and it's quite stable within a
-          # major version.
-          cachedProfile =
-            (import "${openwrt-imagebuilder}/profiles.nix" { }).allProfiles.${target}.${variant};
-          removes = builtins.map (pkg: "-${pkg}") (
-            builtins.filter (lib.hasPrefix "kmod-") (
-              cachedProfile.default_packages ++ cachedProfile.profiles.${profile}.device_packages
-            )
-          );
-
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
 
           config = {
             inherit
@@ -45,7 +31,10 @@
 
             # add package to include in the image, ie. packages that you don't
             # want to install manually later
-            packages = [ "tcpdump" ] ++ removes;
+            # https://openwrt.org/docs/guide-user/additional-software/saving_space
+            # TODO: Remove the kmod totally? No way to remove them currently...
+            # TODO: Replace kmodloader to a dummpy script.
+            packages = [ "-opkg" ];
 
             disabledServices = [ "dropbear" ];
 
@@ -74,15 +63,16 @@
           package = openwrt-imagebuilder.lib.build config;
         in
         package.overrideAttrs (prev: {
-          preBuild =
-            (prev.preBuild or "")
-            + (builtins.concatStringsSep " " (
-              [ "sed -i -E -e ''" ]
-              ++ (builtins.map ({ name, value }: "-e 's/^(CONFIG_${name}=).+$/\\1${value}/'") (
-                lib.attrsToList overrides
-              ))
-              ++ [ ".config" ]
-            ));
+          preBuild = builtins.concatStringsSep " " (
+            [
+              (prev.preBuild or "")
+              "sed -i -E -e ''"
+            ]
+            ++ (builtins.map ({ name, value }: "-e 's/^(CONFIG_${name}=).+$/\\1${value}/'") (
+              lib.attrsToList overrides
+            ))
+            ++ [ ".config" ]
+          );
 
           preInstall = "rm -fv bin/targets/${target}/${variant}/*-kernel.bin";
           postInstall = "cp .config $out/openwrt-config";
