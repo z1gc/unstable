@@ -51,7 +51,17 @@ let
           home.packages =
             with pkgs;
             [
+              ripgrep
+              fd
+              wget
               age
+              p7zip
+
+              strace
+              sysstat
+              lm_sensors
+              bcc
+              bpftrace
             ]
             ++ (map (attrByStrPath pkgs) packages);
           sops.age.keyFile = "${home}/.cache/.whats-yours-is-mine";

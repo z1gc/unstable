@@ -8,13 +8,7 @@
 {
   home.packages = with pkgs; [
     zoxide
-    ripgrep
-    fd
     fzf
-    sysstat
-    lm_sensors
-    bcc
-    bpftrace
   ];
 
   programs = {
