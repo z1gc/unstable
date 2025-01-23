@@ -42,7 +42,11 @@
       mkNetwork =
         port:
         lib.recursiveUpdate {
-          networkConfig.LinkLocalAddressing = "no";
+          matchConfig.Name = port;
+          networkConfig = {
+            LinkLocalAddressing = "no";
+            DHCP = "no";
+          };
           linkConfig.RequiredForOnline = "carrier";
         };
 
@@ -52,6 +56,7 @@
           Name = port;
         };
       };
+
       mkBridgeSlave =
         port: master:
         mkNetwork port {
@@ -70,7 +75,7 @@
 
         modules = with n9.lib.nixos-modules; [
           ./hardware-configuration.nix
-          (disk.btrfs "/dev/nvme0n1")
+          (disk.btrfs "/dev/mmcblk0")
           (
             { config, ... }:
             {
@@ -91,7 +96,9 @@
                 };
 
                 "20-lan" = mkBridge ports.lan;
-                "21-iptv" = mkBridge ports.iptv;
+                "21-iptv" = (mkBridge ports.iptv) // {
+                  bridgeConfig.VLANFiltering = "yes";
+                };
               };
 
               # PPPoE, networkd managed as well:
@@ -99,8 +106,9 @@
               services.pppd = {
                 enable = true;
                 # https://man7.org/linux/man-pages/man8/pppd.8.html
-                peers.${ports.wan}.config = ''
+                peers.wan.config = ''
                   plugin pppoe.so
+                  ifname ${ports.wan}
                   nic-${ports.vlan}
                   file ${config.sops.secrets.pppoe-wan.path}
 
@@ -108,46 +116,57 @@
                   maxfail 0
                   holdoff 10
 
-                  +ipv6
-                  ipv6 ipv6cp-use-ipaddr
+                  +ipv6 ipv6cp-use-ipaddr
+                  defaultroute
+                  usepeerdns
                   noipdefault
                 '';
               };
 
               systemd.network.networks = {
-                "10-sfp-0" = mkNetwork ports.sfp-0 {
+                "10-sfp-0" = (mkBridgeSlave ports.sfp-0 ports.iptv) // {
                   vlan = [ ports.vlan ];
                 };
+                "11-vlan" = mkNetwork ports.vlan { };
 
                 "20-wan" = mkNetwork ports.wan {
-                  networkConfig = {
-                    DHCP = "yes";
-                    KeepConfiguration = "yes";
-                  };
-                  linkConfig.RequiredForOnline = "yes";
+                  networkConfig.KeepConfiguration = "yes";
+                  linkConfig.RequiredForOnline = "yes"; # TODO: Is it really working?
                 };
 
                 "30-rj45-0" = mkBridgeSlave ports.rj45-0 ports.lan;
                 "31-rj45-1" = mkBridgeSlave ports.rj45-1 ports.lan;
                 "32-sfp-1" = mkBridgeSlave ports.sfp-1 ports.lan;
                 "33-lan" = mkNetwork ports.lan {
-                  bridgeConfig = { };
                   networkConfig.Address = "10.0.0.1/8";
                 };
 
                 "40-rj45-2" = mkBridgeSlave ports.rj45-2 ports.iptv;
-                "41-sfp-0" = mkBridgeSlave ports.sfp-0 ports.iptv;
-                "42-iptv" = mkNetwork ports.iptv {
-                  bridgeConfig = { };
+                "41-iptv" = mkNetwork ports.iptv {
+                  bridgeVLANs = [
+                    102
+                    3900
+                  ];
                 };
               };
 
               # DHCP and DNS server (kea?):
+              services.resolved.enable = false;
               services.dnsmasq = {
                 enable = true;
                 # https://wiki.archlinux.org/title/Dnsmasq
                 settings = {
-                  interface = ports.lan;
+                  interface = [
+                    "lo"
+                    ports.lan
+                  ];
+                  no-resolv = true;
+                  # TODO: The pppd will try to write the file, which is not allowed in NixOS (readonly /etc).
+                  # resolv-file = "/etc/ppp/resolv.conf";
+                  server = [
+                    "223.5.5.5"
+                    "119.29.29.29"
+                  ];
                   cache-size = "10000";
                   bind-interfaces = true;
                   dhcp-option = [
@@ -162,6 +181,11 @@
                   dhcp-host = [ ];
                 };
               };
+              networking.nameservers = [ "127.0.0.1" ];
+              networking.firewall.allowedUDPPorts = [
+                53
+                67
+              ];
 
               # NAT with nftables.
               # @see nixpkgs/nixos/modules/services/networking/nat-nftables.nix)

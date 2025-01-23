@@ -52,11 +52,11 @@
       "locked": {
         "lastModified": 1,
         "narHash": "sha256-m+KCgcUS1Hp3X+Wu8H0GPz7DZDIpPx89hPU0uRFczS4=",
-        "path": "/nix/store/60ziqxhhgxfih5457gbgf87c34a5gr15-source/ampersand",
+        "path": "/nix/store/x8mcc8x7h0myik5wky94pmqid6zcbyck-source/ampersand",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/60ziqxhhgxfih5457gbgf87c34a5gr15-source/ampersand",
+        "path": "/nix/store/x8mcc8x7h0myik5wky94pmqid6zcbyck-source/ampersand",
         "type": "path"
       }
     },
@@ -79,8 +79,8 @@
     "nixpkgs_2": {
       "locked": {
         "lastModified": 0,
-        "narHash": "sha256-hFA6SmioeqvGW/XvZa9bxniAeulksCOcj3kokdNT/YE=",
-        "path": "/nix/store/sy5yarz13a1zqfdf375l00z6gdwfhdh1-source",
+        "narHash": "sha256-3wFonKmNRWKq1himW9N3TllbeGIHFACI5vmLpk6moF8=",
+        "path": "/nix/store/cffhxnxahh8g8iqbf35j65p3x012xjd6-source",
         "type": "path"
       },
       "original": {
