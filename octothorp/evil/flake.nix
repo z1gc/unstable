@@ -26,10 +26,7 @@
           (
             { config, ... }:
             {
-              sops.secrets.ssh-config = {
-                format = "binary";
-                sopsFile = ./ssh-config;
-              };
+              sops.secrets.ssh-config = n9.lib.utils.sopsBinary ./ssh-config;
               programs.ssh = {
                 enable = true;
                 includes = [ config.sops.secrets.ssh-config.path ];

@@ -18,6 +18,10 @@
     gnome.core-utilities.enable = false;
   };
 
+  # Gnome requires, @see nixpkgs/nixos/modules/services/x11/desktop-managers/gnome.nix
+  # It can be safely eliminated, just keep here for a note.
+  networking.networkmanager.enable = true;
+
   environment = {
     sessionVariables.NIXOS_OZONE_WL = "1";
 

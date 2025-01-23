@@ -1,134 +1,154 @@
-# https://github.com/astro/nix-openwrt-imagebuilder
-# https://github.com/astro/nix-openwrt-imagebuilder/blob/main/example-x86-64.nix
-# https://downloads.openwrt.org/releases/23.05.5/targets/x86/64/profiles.json
+# https://krutonium.ca/posts/building-a-nixos-router/
+# https://francis.begyn.be/blog/ipv6-nixos-router
+# https://github.com/ghostbuster91/blogposts/blob/main/router2023-part2/main.md
+# https://nixos.wiki/wiki/Networking
+# https://nixos.wiki/wiki/Systemd-networkd
 
-# To test on my ARM64 machine, can only built remotely:
-# https://github.com/NixOS/nix/issues/2789
-# nix flake show
-# sudo nix build --builders "ssh-ng://byte@rout x86_64-linux" ".#packages.x86_64-linux.openwrt"
+# 10.0.0.1 => Router
+# 10.254.0.0 => DHCP
+# 10.29.0.0 => PXE (later)
+# 10.42.0.0 => Proxy
+# May conflicts with?
 
 {
   inputs.n9.url = "../../ampersand";
-  inputs.openwrt-imagebuilder = {
-    url = "github:astro/nix-openwrt-imagebuilder";
-    inputs.nixpkgs.follows = "nixpkgs";
-  };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      n9,
-      openwrt-imagebuilder,
-      ...
-    }:
+    { self, n9, ... }:
     let
-      inherit (nixpkgs) lib;
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+      ports = {
+        # physical
+        rj45-0 = "enp1s0";
+        rj45-1 = "enp2s0";
+        rj45-2 = "enp4s0";
+        sfp-0 = "enp5s0f1np1";
+        sfp-1 = "enp5s0f0np0";
 
-      target = "x86";
-      variant = "64";
-      profile = "generic";
-      release = import "${openwrt-imagebuilder}/latest-release.nix";
-      image = "openwrt-${release}-${target}-${variant}-${profile}";
-
-      overrideConfigs =
-        prev:
-        builtins.concatStringsSep " " (
-          [
-            prev
-            "sed -i -E -e ''"
-          ]
-          ++ (builtins.map ({ name, value }: "-e 's/^(CONFIG_${name}=).+$/\\1${value}/'") (
-            lib.attrsToList {
-              TARGET_ROOTFS_SQUASHFS = "n";
-              TARGET_ROOTFS_EXT4FS = "n";
-              GRUB_IMAGES = "n";
-              GRUB_EFI_IMAGES = "n";
-            }
-          ))
-          ++ [ ".config" ]
-        );
+        # virtual
+        vlan = "enp5s0f1.101";
+        wan = "pppoe-wan";
+        lan = "br-lan";
+        iptv = "br-iptv";
+      };
     in
     {
-      inherit system;
-
-      packages.${system} = {
-        # With OpenWRT packages:
-        openwrt-image =
-          (openwrt-imagebuilder.lib.build {
-            inherit
-              target
-              variant
-              profile
-              pkgs
-              ;
-
-            # https://openwrt.org/docs/guide-user/additional-software/saving_space
-            # TODO: Remove the kmod totally? It isn't much possible without
-            #       hacking the openwrt/include/kernel.mk, and it headaches.
-            # TODO: Replace kmodloader to a dummpy script.
-            packages = [
-              "curl"
-              "yq"
-              "dnsmasq-full"
-              "ip-full"
-              "luci"
-              "luci-ssl"
-              "luci-app-acme"
-              "acme-acmesh-dnsapi"
-              "luci-app-statistics"
-              "collectd-mod-cpufreq"
-              "collectd-mod-load"
-              "collectd-mod-sensors"
-              "luci-app-ttyd"
-
-              "-dnsmasq"
-              "-opkg"
-              "-luci-app-opkg"
-              "-dropbear"
-            ];
-            disabledServices = [ ];
-          }).overrideAttrs
-            (prev: {
-              preBuild = overrideConfigs (prev.preBuild or "");
-              preInstall = "rm bin/targets/${target}/${variant}/${image}-kernel.bin";
-              postInstall = "cp .config $out/${image}.config";
-            });
-
-        # With configurtaions "injected":
-        # openwrt = pkgs.stdenv.mkDerivation {
-        #   src = self.packages.${system}.openwrt-image + "/";
-        #   dontFixup = true;
-        # };
-      };
+      system = "x86_64-linux";
 
       nixosConfigurations = n9.lib.nixos self {
-        # packages = [ self.packages.${system}.openwrt ];
+        packages = [
+          "bridge-utils"
+        ];
 
         modules = with n9.lib.nixos-modules; [
           ./hardware-configuration.nix
           (disk.btrfs "/dev/nvme0n1")
-          {
-            boot.kernelModules = [
-              "pppoe"
-              "inet_diag"
-            ];
-            networking = {
-              useDHCP = false;
-              dhcpcd.enable = false;
-              networkmanager.enable = lib.mkForce false;
-              firewall.enable = false;
-            };
-          }
+          (
+            { config, ... }:
+            {
+              boot.kernelModules = [ "pppoe" ];
+
+              networking.useDHCP = false;
+              networking.dhcpcd.enable = false;
+              systemd.network.enable = true;
+
+              # WAN port:
+              systemd.network.netdevs."10-${ports.vlan}" = {
+                netdevConfig = {
+                  Kind = "vlan";
+                  Name = ports.vlan;
+                };
+                vlanConfig.Id = 101;
+              };
+              systemd.network.networks."10-${ports.sfp-0}" = {
+                matchConfig.Name = ports.sfp-0;
+                vlan = [ ports.vlan ];
+                networkConfig.LinkLocalAddressing = "no";
+                linkConfig.RequiredForOnline = "carrier";
+              };
+
+              # PPPoE, networkd unmanaged:
+              sops.secrets.pppoe-wan = n9.lib.utils.sopsBinary ./pppoe-wan;
+              services.pppd = {
+                enable = true;
+                # https://man7.org/linux/man-pages/man8/pppd.8.html
+                peers.${ports.wan}.config = ''
+                  plugin pppoe.so
+                  nic-${ports.vlan}
+                  file ${config.sops.secrets.pppoe-wan.path}
+
+                  persist
+                  maxfail 0
+                  holdoff 10
+
+                  +ipv6
+                  ipv6 ipv6cp-use-ipaddr
+                  noipdefault
+                  defaultroute
+                  usepeerdns
+                '';
+              };
+
+              # LAN ports: WIP
+              systemd.network.netdevs."20-${ports.lan}" = {
+                netdevConfig = {
+                  Kind = "bridge";
+                  Name = ports.lan;
+                };
+              };
+              systemd.network.networks."30-${ports.lan}" = {
+                matchConfig.Name = ports.lan;
+              };
+              networking.bridges.${ports.lan}.interfaces = [
+                ports.rj45-0
+                ports.rj45-1
+                ports.sfp-1
+              ];
+
+              # IPTV ports, TODO: use networkd to simplify it?
+              networking.bridges.${ports.iptv}.interfaces = [
+                ports.rj45-2
+                ports.sfp-0
+              ];
+
+              # DHCP and DNS server (kea?):
+              services.dnsmasq = {
+                enable = true;
+                # https://wiki.archlinux.org/title/Dnsmasq
+                settings = {
+                  interface = ports.lan;
+                  cache-size = "10000";
+                  bind-interfaces = true;
+                  dhcp-option = [
+                    "1,255.0.0.0"
+                    "3,10.0.0.1"
+                    "6,10.0.0.1"
+                  ];
+                  dhcp-range = [
+                    "10.254.0.1,10.254.254.254,42m"
+                    "::,constructor:pppoe-wan,42m"
+                  ];
+                  dhcp-host = [ ];
+                };
+              };
+
+              # NAT with nftables.
+              # @see nixpkgs/nixos/modules/services/networking/nat-nftables.nix)
+              # nix eval --raw ".#nixosConfigurations.rout.config.networking.nftables.tables"
+              networking.nftables.enable = true;
+              networking.nat = {
+                enable = true;
+                internalInterfaces = [ ports.lan ];
+                externalInterface = ports.wan;
+              };
+            }
+          )
         ];
       };
 
       homeConfigurations = n9.lib.home self (n9.lib.utils.user2 "byte" ./passwd) {
         packages = [
           "tcpdump"
-          "bridge-utils"
+          "mstflint"
           "ethtool"
           "nftables"
         ];

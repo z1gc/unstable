@@ -63,6 +63,12 @@
           else
             maybeStringPath;
 
+        # Oneliner sops binary:
+        sopsBinary = sopsFile: {
+          inherit sopsFile;
+          format = "binary";
+        };
+
         # 2 for argument numbers, huh.
         user2 = username: passwd: { inherit username passwd; };
       };

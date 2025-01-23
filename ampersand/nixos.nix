@@ -50,9 +50,9 @@ in
               efi.canTouchEfiVariables = true;
             };
 
+            # For default networking, using NixOS's default (dhcpcd).
             networking = {
               inherit hostName hostId;
-              networkmanager.enable = true;
             };
 
             environment = {

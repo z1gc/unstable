@@ -21,27 +21,6 @@
         "type": "github"
       }
     },
-    "flake-parts": {
-      "inputs": {
-        "nixpkgs-lib": [
-          "openwrt-imagebuilder",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1733312601,
-        "narHash": "sha256-4pDvzqnegAfRkPwO3wmwBhVi/Sye1mzps0zHWYnP88c=",
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "rev": "205b12d8b7cd4802fbcb8e8ef6a0f1408781a4f9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "type": "github"
-      }
-    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -72,12 +51,12 @@
       },
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-x94zT6CxXVuIv0GEuWgLjJCIuPaZsV6GJ9izWnHtQdI=",
-        "path": "/nix/store/fpg8l3svwbwiglr5yrqlqwrp834fhijy-source/ampersand",
+        "narHash": "sha256-4JUIxEydu1quX5BaNLdZhMIaNkKeEfXDwYhNLNwUqNk=",
+        "path": "/nix/store/wm7jy238ikgsf2s8i8n5n5b2m768qrvh-source/ampersand",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/fpg8l3svwbwiglr5yrqlqwrp834fhijy-source/ampersand",
+        "path": "/nix/store/wm7jy238ikgsf2s8i8n5n5b2m768qrvh-source/ampersand",
         "type": "path"
       }
     },
@@ -109,33 +88,10 @@
         "type": "indirect"
       }
     },
-    "openwrt-imagebuilder": {
-      "inputs": {
-        "flake-parts": "flake-parts",
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "systems": "systems"
-      },
-      "locked": {
-        "lastModified": 1737536018,
-        "narHash": "sha256-CULGgGd4noL+/yDuvxgL/vInho3GA/tLX+DGjoE5KqE=",
-        "owner": "astro",
-        "repo": "nix-openwrt-imagebuilder",
-        "rev": "00499d33983cfd5b07341c2ed882473ecf09fd4e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "astro",
-        "repo": "nix-openwrt-imagebuilder",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "n9": "n9",
-        "nixpkgs": "nixpkgs_2",
-        "openwrt-imagebuilder": "openwrt-imagebuilder"
+        "nixpkgs": "nixpkgs_2"
       }
     },
     "sops-nix": {
@@ -156,21 +112,6 @@
       "original": {
         "owner": "Mic92",
         "repo": "sops-nix",
-        "type": "github"
-      }
-    },
-    "systems": {
-      "locked": {
-        "lastModified": 1680978846,
-        "narHash": "sha256-Gtqg8b/v49BFDpDetjclCYXm8mAnTrUzR0JnE2nv5aw=",
-        "owner": "nix-systems",
-        "repo": "x86_64-linux",
-        "rev": "2ecfcac5e15790ba6ce360ceccddb15ad16d08a8",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-systems",
-        "repo": "x86_64-linux",
         "type": "github"
       }
     }
