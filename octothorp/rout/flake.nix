@@ -14,8 +14,15 @@
   inputs.n9.url = "../../ampersand";
 
   outputs =
-    { self, n9, ... }:
+    {
+      self,
+      nixpkgs,
+      n9,
+      ...
+    }:
     let
+      inherit (nixpkgs) lib;
+
       ports = {
         # physical
         rj45-0 = "enp1s0";
@@ -30,6 +37,28 @@
         lan = "br-lan";
         iptv = "br-iptv";
       };
+
+      # Without link local address and required online by default:
+      mkNetwork =
+        port:
+        lib.recursiveUpdate {
+          networkConfig.LinkLocalAddressing = "no";
+          linkConfig.RequiredForOnline = "carrier";
+        };
+
+      mkBridge = port: {
+        netdevConfig = {
+          Kind = "bridge";
+          Name = port;
+        };
+      };
+      mkBridgeSlave =
+        port: master:
+        mkNetwork port {
+          matchConfig.Name = port;
+          networkConfig.Bridge = master;
+          linkConfig.RequiredForOnline = "enslaved";
+        };
     in
     {
       system = "x86_64-linux";
@@ -51,22 +80,21 @@
               networking.dhcpcd.enable = false;
               systemd.network.enable = true;
 
-              # WAN port:
-              systemd.network.netdevs."10-${ports.vlan}" = {
-                netdevConfig = {
-                  Kind = "vlan";
-                  Name = ports.vlan;
+              # Netdev:
+              systemd.network.netdevs = {
+                "10-vlan" = {
+                  netdevConfig = {
+                    Kind = "vlan";
+                    Name = ports.vlan;
+                  };
+                  vlanConfig.Id = 101;
                 };
-                vlanConfig.Id = 101;
-              };
-              systemd.network.networks."10-${ports.sfp-0}" = {
-                matchConfig.Name = ports.sfp-0;
-                vlan = [ ports.vlan ];
-                networkConfig.LinkLocalAddressing = "no";
-                linkConfig.RequiredForOnline = "carrier";
+
+                "20-lan" = mkBridge ports.lan;
+                "21-iptv" = mkBridge ports.iptv;
               };
 
-              # PPPoE, networkd unmanaged:
+              # PPPoE, networkd managed as well:
               sops.secrets.pppoe-wan = n9.lib.utils.sopsBinary ./pppoe-wan;
               services.pppd = {
                 enable = true;
@@ -83,32 +111,36 @@
                   +ipv6
                   ipv6 ipv6cp-use-ipaddr
                   noipdefault
-                  defaultroute
-                  usepeerdns
                 '';
               };
 
-              # LAN ports: WIP
-              systemd.network.netdevs."20-${ports.lan}" = {
-                netdevConfig = {
-                  Kind = "bridge";
-                  Name = ports.lan;
+              systemd.network.networks = {
+                "10-sfp-0" = mkNetwork ports.sfp-0 {
+                  vlan = [ ports.vlan ];
+                };
+
+                "20-wan" = mkNetwork ports.wan {
+                  networkConfig = {
+                    DHCP = "yes";
+                    KeepConfiguration = "yes";
+                  };
+                  linkConfig.RequiredForOnline = "yes";
+                };
+
+                "30-rj45-0" = mkBridgeSlave ports.rj45-0 ports.lan;
+                "31-rj45-1" = mkBridgeSlave ports.rj45-1 ports.lan;
+                "32-sfp-1" = mkBridgeSlave ports.sfp-1 ports.lan;
+                "33-lan" = mkNetwork ports.lan {
+                  bridgeConfig = { };
+                  networkConfig.Address = "10.0.0.1/8";
+                };
+
+                "40-rj45-2" = mkBridgeSlave ports.rj45-2 ports.iptv;
+                "41-sfp-0" = mkBridgeSlave ports.sfp-0 ports.iptv;
+                "42-iptv" = mkNetwork ports.iptv {
+                  bridgeConfig = { };
                 };
               };
-              systemd.network.networks."30-${ports.lan}" = {
-                matchConfig.Name = ports.lan;
-              };
-              networking.bridges.${ports.lan}.interfaces = [
-                ports.rj45-0
-                ports.rj45-1
-                ports.sfp-1
-              ];
-
-              # IPTV ports, TODO: use networkd to simplify it?
-              networking.bridges.${ports.iptv}.interfaces = [
-                ports.rj45-2
-                ports.sfp-0
-              ];
 
               # DHCP and DNS server (kea?):
               services.dnsmasq = {
@@ -157,7 +189,7 @@
           editor.helix
           shell.fish
           {
-            home.file.".ssh/authorized_keys" =
+            home.file.".ssh/authorized_keys".text =
               "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILb5cEj9hvj32QeXnCD5za0VLz56yBP3CiA7Kgr1tV5S byte@harm";
           }
         ];

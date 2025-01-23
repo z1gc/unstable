@@ -29,11 +29,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1737480538,
-        "narHash": "sha256-rk/cmrvq3In0TegW9qaAxw+5YpJhRWt2p74/6JStrw0=",
+        "lastModified": 1737630279,
+        "narHash": "sha256-wJQCxyMRc4P26zDrHmZiRD5bbfcJpqPG3e2djdGG3pk=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "4481a16d1ac5bff4a77c608cefe08c9b9efe840d",
+        "rev": "0db5c8bfcce78583ebbde0b2abbc95ad93445f7c",
         "type": "github"
       },
       "original": {
@@ -51,12 +51,12 @@
       },
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-4JUIxEydu1quX5BaNLdZhMIaNkKeEfXDwYhNLNwUqNk=",
-        "path": "/nix/store/wm7jy238ikgsf2s8i8n5n5b2m768qrvh-source/ampersand",
+        "narHash": "sha256-m+KCgcUS1Hp3X+Wu8H0GPz7DZDIpPx89hPU0uRFczS4=",
+        "path": "/nix/store/60ziqxhhgxfih5457gbgf87c34a5gr15-source/ampersand",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/wm7jy238ikgsf2s8i8n5n5b2m768qrvh-source/ampersand",
+        "path": "/nix/store/60ziqxhhgxfih5457gbgf87c34a5gr15-source/ampersand",
         "type": "path"
       }
     },

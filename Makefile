@@ -21,7 +21,7 @@ ${HWCONF}:
 	nixos-generate-config --no-filesystems --show-hardware-config > "$@"
 
 setup: ${HWCONF}
-	grep -Eq 'VARIANT_ID="?installer"?' /etc/os-release
+	[[ "${ROOT}" != "" && -d "${ROOT}" ]]
 	${NIX} build --no-link --print-out-paths --no-write-lock-file \
 		"${FLAKE}#nixosConfiguration.${HOSTNAME}.config.system.build.diskoScript" \
 		| bash -s
