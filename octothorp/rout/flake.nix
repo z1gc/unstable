@@ -50,20 +50,24 @@
           linkConfig.RequiredForOnline = "carrier";
         };
 
-      mkBridge = port: {
-        netdevConfig = {
-          Kind = "bridge";
-          Name = port;
+      mkBridge =
+        port:
+        lib.recursiveUpdate {
+          netdevConfig = {
+            Kind = "bridge";
+            Name = port;
+          };
         };
-      };
 
       mkBridgeSlave =
         port: master:
-        mkNetwork port {
-          matchConfig.Name = port;
-          networkConfig.Bridge = master;
-          linkConfig.RequiredForOnline = "enslaved";
-        };
+        lib.recursiveUpdate (
+          mkNetwork port {
+            matchConfig.Name = port;
+            networkConfig.Bridge = master;
+            linkConfig.RequiredForOnline = "enslaved";
+          }
+        );
     in
     {
       system = "x86_64-linux";
@@ -95,13 +99,13 @@
                   vlanConfig.Id = 101;
                 };
 
-                "20-lan" = mkBridge ports.lan;
-                "21-iptv" = (mkBridge ports.iptv) // {
+                "20-lan" = mkBridge ports.lan { };
+                "21-iptv" = mkBridge ports.iptv {
                   bridgeConfig.VLANFiltering = "yes";
                 };
               };
 
-              # PPPoE, networkd managed as well:
+              # PPPoE (netdev), networkd managed as well:
               sops.secrets.pppoe-wan = n9.lib.utils.sopsBinary ./pppoe-wan;
               services.pppd = {
                 enable = true;
@@ -123,8 +127,9 @@
                 '';
               };
 
+              # Networks:
               systemd.network.networks = {
-                "10-sfp-0" = (mkBridgeSlave ports.sfp-0 ports.iptv) // {
+                "10-sfp-0" = mkBridgeSlave ports.sfp-0 ports.iptv {
                   vlan = [ ports.vlan ];
                 };
                 "11-vlan" = mkNetwork ports.vlan { };
@@ -134,18 +139,22 @@
                   linkConfig.RequiredForOnline = "yes"; # TODO: Is it really working?
                 };
 
-                "30-rj45-0" = mkBridgeSlave ports.rj45-0 ports.lan;
-                "31-rj45-1" = mkBridgeSlave ports.rj45-1 ports.lan;
-                "32-sfp-1" = mkBridgeSlave ports.sfp-1 ports.lan;
+                "30-rj45-0" = mkBridgeSlave ports.rj45-0 ports.lan { };
+                "31-rj45-1" = mkBridgeSlave ports.rj45-1 ports.lan { };
+                "32-sfp-1" = mkBridgeSlave ports.sfp-1 ports.lan { };
                 "33-lan" = mkNetwork ports.lan {
                   networkConfig.Address = "10.0.0.1/8";
                 };
 
-                "40-rj45-2" = mkBridgeSlave ports.rj45-2 ports.iptv;
+                "40-rj45-2" = mkBridgeSlave ports.rj45-2 ports.iptv { };
                 "41-iptv" = mkNetwork ports.iptv {
                   bridgeVLANs = [
-                    102
-                    3900
+                    {
+                      PVID = "102";
+                    }
+                    {
+                      PVID = "3900";
+                    }
                   ];
                 };
               };
@@ -160,6 +169,9 @@
                     "lo"
                     ports.lan
                   ];
+                  bind-interfaces = true;
+                  cache-size = "10000";
+
                   no-resolv = true;
                   # TODO: The pppd will try to write the file, which is not allowed in NixOS (readonly /etc).
                   # resolv-file = "/etc/ppp/resolv.conf";
@@ -167,8 +179,7 @@
                     "223.5.5.5"
                     "119.29.29.29"
                   ];
-                  cache-size = "10000";
-                  bind-interfaces = true;
+
                   dhcp-option = [
                     "1,255.0.0.0"
                     "3,10.0.0.1"

@@ -29,11 +29,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1737461688,
-        "narHash": "sha256-zQCFe5FcSSGzY3qauAAHZcPt7Ej4WSGo78ShSTCSBvU=",
+        "lastModified": 1737968762,
+        "narHash": "sha256-xiPARGKwocaMtv+U/rgi+h2g56CZZEmrcl7ldRaslq8=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "bb14224f51ae4caed12a7b26f245d042c8cf8553",
+        "rev": "e1ae908bcc30af792b0bb0a52e53b03d2577255e",
         "type": "github"
       },
       "original": {
@@ -51,22 +51,22 @@
       },
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-kOX0XltsvwOeIRds3joUw5G+XfErgRpDLz0LlQTM1+g=",
-        "path": "/nix/store/xg1mc8w11803qvls43jqivzr9zbgkymn-source/irix",
+        "narHash": "sha256-m+KCgcUS1Hp3X+Wu8H0GPz7DZDIpPx89hPU0uRFczS4=",
+        "path": "/nix/store/0vb5nyv6dsnzgkksb43gq619d2caj07k-source/ampersand",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/xg1mc8w11803qvls43jqivzr9zbgkymn-source/irix",
+        "path": "/nix/store/0vb5nyv6dsnzgkksb43gq619d2caj07k-source/ampersand",
         "type": "path"
       }
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1737370608,
-        "narHash": "sha256-hFA6SmioeqvGW/XvZa9bxniAeulksCOcj3kokdNT/YE=",
+        "lastModified": 1737942377,
+        "narHash": "sha256-8Eo/jRAgT3CbAloyqOj6uPN1EqBvLI/Tv2g+RxHjkhU=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "300081d0cc72df578b02d914df941b8ec62240e6",
+        "rev": "88a55dffa4d44d294c74c298daf75824dc0aafb5",
         "type": "github"
       },
       "original": {
