@@ -31,7 +31,6 @@ let
     vlan = "enp5s0f1.101";
     wan = "pppoe-wan";
     lan = "br-lan";
-    iptv = "br-iptv";
   };
 
   # Without link local address and required online by default:
@@ -59,7 +58,6 @@ let
     port: master:
     lib.recursiveUpdate (
       mkNetwork port {
-        matchConfig.Name = port;
         networkConfig.Bridge = master;
         linkConfig.RequiredForOnline = "enslaved";
       }
@@ -79,9 +77,6 @@ in
     };
 
     "20-lan" = mkBridge ports.lan { };
-    "21-iptv" = mkBridge ports.iptv {
-      bridgeConfig.VLANFiltering = "yes";
-    };
   };
 
   # PPPoE (netdev), networkd managed as well:
@@ -110,7 +105,7 @@ in
 
   # Networks:
   systemd.network.networks = {
-    "10-sfp-0" = mkBridgeSlave ports.sfp-0 ports.iptv {
+    "10-sfp-0" = mkNetwork ports.sfp-0 {
       vlan = [ ports.vlan ];
     };
     "11-vlan" = mkNetwork ports.vlan { };
@@ -122,22 +117,8 @@ in
 
     "30-rj45-0" = mkBridgeSlave ports.rj45-0 ports.lan { };
     "31-rj45-1" = mkBridgeSlave ports.rj45-1 ports.lan { };
-    "32-sfp-1" = mkBridgeSlave ports.sfp-1 ports.lan { };
-    "33-lan" = mkNetwork ports.lan {
-      networkConfig.Address = "10.0.0.1/8";
-    };
-
-    "40-rj45-2" = mkBridgeSlave ports.rj45-2 ports.iptv { };
-    "41-iptv" = mkNetwork ports.iptv {
-      bridgeVLANs = [
-        {
-          PVID = "102";
-        }
-        {
-          PVID = "3900";
-        }
-      ];
-    };
+    "32-rj45-2" = mkBridgeSlave ports.rj45-2 ports.lan { };
+    "33-lan" = mkNetwork ports.lan { networkConfig.Address = "10.0.0.1/8"; };
   };
 
   # DHCP and DNS server (kea?):
