@@ -118,7 +118,6 @@ in
           args: {
             sops.secrets = lib.optionalAttrs (passwd != null) {
               "login/${username}" = {
-                # sops --age "$(awk '$2 == "public" {print $NF}' <key>)" -e <file>
                 neededForUsers = true;
                 format = "binary";
                 sopsFile = passwd;

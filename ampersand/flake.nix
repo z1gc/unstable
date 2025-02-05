@@ -21,27 +21,28 @@
   outputs =
     { nixpkgs, ... }@args:
     let
-      # TODO: Modular!
+      importArgs = file: import file args;
+
       disk =
         args: type: device:
-        (import ./disk args) { inherit type device; };
+        (importArgs ./disk) { inherit type device; };
     in
     {
       # NixOS, Nix (For package manager only, use lib.mkNixPackager?):
       # TODO: With no hard code?
-      lib.nixos = import ./nixos.nix args;
+      lib.nixos = importArgs ./nixos.nix;
       lib.nixos-modules = {
         disk.zfs = disk args "zfs";
         disk.btrfs = disk args "btrfs";
-        desktop.gnome = import ./desktop/gnome.nix args;
+        desktop.gnome = importArgs ./desktop/gnome.nix;
       };
 
       # User/home level modules, with home-manager:
-      lib.home = import ./home.nix args;
+      lib.home = importArgs ./home.nix;
       lib.home-modules = {
-        editor.helix = import ./editor/helix.nix args;
-        shell.fish = import ./shell/fish.nix args;
-        secret.ssh-key = import ./secret/ssh-key.nix args;
+        editor.helix = importArgs ./editor/helix.nix;
+        shell.fish = importArgs ./shell/fish.nix;
+        secret.ssh-key = importArgs ./secret/ssh-key.nix;
       };
 
       # Simple utils, mainly for making the code "shows" better.

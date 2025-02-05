@@ -56,6 +56,7 @@ let
               p7zip
               jq
               yq
+              bat
               cached-nix-shell
 
               strace
