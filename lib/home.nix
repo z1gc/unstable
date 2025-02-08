@@ -94,7 +94,7 @@ in
         pkgs = nixpkgs.legacyPackages.${system};
 
         modules = [
-          (import ./nixpkgs.nix args)
+          (import ../pkgs/nixpkgs.nix args)
           {
             programs.home-manager.enable = true;
           }

@@ -30,19 +30,19 @@
     {
       # NixOS, Nix (For package manager only, use lib.mkNixPackager?):
       # TODO: With no hard code?
-      lib.nixos = importArgs ./nixos.nix;
+      lib.nixos = importArgs ./lib/nixos.nix;
       lib.nixos-modules = {
         disk.zfs = disk args "zfs";
         disk.btrfs = disk args "btrfs";
-        desktop.gnome = importArgs ./desktop/gnome.nix;
+        desktop.gnome = importArgs ./nixos/desktop/gnome.nix;
       };
 
       # User/home level modules, with home-manager:
-      lib.home = importArgs ./home.nix;
+      lib.home = importArgs ./lib/home.nix;
       lib.home-modules = {
-        editor.helix = importArgs ./editor/helix.nix;
-        shell.fish = importArgs ./shell/fish.nix;
-        secret.ssh-key = importArgs ./secret/ssh-key.nix;
+        editor.helix = importArgs ./home/editor/helix.nix;
+        shell.fish = importArgs ./home/shell/fish.nix;
+        secret.ssh-key = importArgs ./home/secret/ssh-key.nix;
       };
 
       # Simple utils, mainly for making the code "shows" better.

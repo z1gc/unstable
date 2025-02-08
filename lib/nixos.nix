@@ -33,7 +33,7 @@ in
 
     modules =
       [
-        (import ./nixpkgs.nix args)
+        (import ../pkgs/nixpkgs.nix args)
         (
           { pkgs, ... }:
           {

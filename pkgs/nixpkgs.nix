@@ -29,7 +29,7 @@ in
             hash = "sha256-VtgBImxvrVJGEfAvEW4rFDLghNKaxPNvrTsnEwPVakE=";
           } super.ibus-engines.rime pkgs).override
             (prev: {
-              rimeDataPkgs = [ (pkgs.callPackage ./pkgs/rime-ice.nix { }) ];
+              rimeDataPkgs = [ (pkgs.callPackage ./rime-ice.nix { }) ];
             });
       };
 
