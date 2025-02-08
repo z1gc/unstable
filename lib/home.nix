@@ -7,8 +7,8 @@
 }@args: # <- Flake inputs
 
 # Making a Home Manager things.
-# @input username: The username of it.
 #
+# @input username: The username of it.
 # If nixos:
 #   @input uid,home: Information about the user.
 #                    The group's info is same as the user.

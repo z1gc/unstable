@@ -1,6 +1,16 @@
-# N9
+# N9.*
 
-NixOS (partial) configurations of mine.
+```nix
+{ stdenv, gnumake, ... }:
+
+stdenv.mkDerivation {
+  # n-ix, yes, the n9 :O
+  pname = "n";
+  version = "ix";
+}
+```
+
+NixOS (partial) configurations of mine. Break it!
 
 This provides a simple template to build my machine.
 
@@ -34,21 +44,3 @@ A sample of how to use my configuration (maybe):
     };
 }
 ```
-
-# .*
-
-```nix
-{ stdenv, gnumake, ... }:
-
-stdenv.mkDerivation {
-  # n-ix, yes, the n9 :O
-  pname = "n";
-  version = "ix";
-
-  buildInputs = [ gnumake ];
-  buildPhase = "make setup";
-  installPhase = "make switch";
-}
-```
-
-Break it!
