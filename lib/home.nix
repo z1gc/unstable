@@ -8,13 +8,13 @@
 
 # Making a Home Manager things.
 # If nixos:
-#   @input {username,uid,home,passwd}: Information about the user.
-#                                    The group's info is same as the user.
+#   @input {username,uid,home}: Information about the user.
+#                               The group's info is same as the user.
 #   @input modules: Imports from.
 #   @input packages: Shortcut of home.packages, within the imports context.
 #                    Due to this restriction, this should be array of strings.
 #                    For other packages, you might need to write a module.
-#   @output: AttrSet of ${username} = {uid,home,passwd,config}.
+#   @output: AttrSet of ${username} = {uid,home,config}.
 # Else (standalone homeManager):
 #   @input {username,home}: Information about the user.
 #   @input modules: Imports from.
@@ -27,7 +27,6 @@ that:
   username,
   uid ? 1000,
   home ? "/home/${username}",
-  passwd ? null,
 }:
 {
   packages ? [ ],
@@ -85,7 +84,6 @@ in
         inherit
           uid
           home
-          passwd
           config
           ;
       }

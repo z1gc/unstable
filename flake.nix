@@ -70,8 +70,8 @@
           format = "binary";
         };
 
-        # 2 for argument numbers, huh.
-        user2 = username: passwd: { inherit username passwd; };
+        # 1 for argument numbers, huh.
+        user1 = username: { inherit username; };
       };
     };
 }

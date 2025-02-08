@@ -111,18 +111,9 @@ in
           {
             uid,
             home,
-            passwd,
             config,
           }:
           args: {
-            sops.secrets = lib.optionalAttrs (passwd != null) {
-              "login/${username}" = {
-                neededForUsers = true;
-                format = "binary";
-                sopsFile = passwd;
-              };
-            };
-
             users = {
               groups.${username} = {
                 gid = uid;
@@ -133,8 +124,6 @@ in
                 inherit uid home;
                 group = username;
                 extraGroups = [ "wheel" ];
-                hashedPasswordFile =
-                  if (passwd != null) then args.config.sops.secrets."login/${username}".path else null;
               };
             };
 
