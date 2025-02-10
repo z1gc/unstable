@@ -74,6 +74,25 @@
             );
           in
           builtins.map ({ name, ... }: name) directories;
+
+        # Setup SSH keys:
+        sshKey =
+          path:
+          let
+            key = builtins.baseNameOf path;
+          in
+          {
+            ${key} = {
+              keyFile = path;
+              permissions = "0400";
+              destDir = "@HOME@/.ssh";
+            };
+            "${key}.pub" = {
+              keyFile = "${path}.pub";
+              permissions = "0440";
+              destDir = "@HOME@/.ssh";
+            };
+          };
       };
     };
 }

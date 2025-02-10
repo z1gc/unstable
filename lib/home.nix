@@ -1,4 +1,4 @@
-{ self, ... }: # <- Flake inputs
+{ self, nixpkgs, ... }: # <- Flake inputs
 
 # Making a Home Manager things.
 #
@@ -28,6 +28,7 @@ that: username: passwd: # <- Module arguments
 }: # <- NixOS or HomeManager configurations (kind of)
 
 let
+  inherit (nixpkgs) lib;
   inherit (self.lib) utils;
 
   config = {
@@ -71,6 +72,9 @@ let
     (builtins.mapAttrs (
       _: v:
       v
+      // lib.optionalAttrs (v ? destDir && (lib.strings.hasPrefix "@HOME@" v.destDir)) {
+        destDir = home + (lib.strings.removePrefix "@HOME@" v.destDir);
+      }
       // {
         user = username;
         group = username;
