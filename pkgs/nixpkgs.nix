@@ -45,6 +45,11 @@ in
           "--sync-url=https://brave-sync.pteno.cn/v2"
         ];
       });
+
+      ppp = utils.mkPatch {
+        url = "https://github.com/plxty/ppp/commit/a86a429fe59f8f8386771f7aefa0cb4cc68e4897.patch";
+        hash = "sha256-QBkVFfcBhdI/hHiMpCDw5yryU50SBWuxZvmegK83SiQ=";
+      } super.ppp pkgs;
     })
   ];
 
