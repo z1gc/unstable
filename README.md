@@ -25,21 +25,31 @@ A sample of how to use my configuration (maybe):
   outputs =
     { self, n9, ... }:
     {
-      nixosConfigurations = n9.lib.nixos self "evil" "x86_64-linux" {
+      colmenaHive = n9.lib.nixos self "evil" "x86_64-linux" {
+        # Shorthand to modules:
         packages = [ "btrfs-progs" ];
+
+        # NixOS modules:
         modules = with n9.lib.nixos-modules; [
           ./hardware-configuration.nix
           (disk.zfs "/dev/disk/by-id/nvme-eui.002538b231b633a2")
           desktop.gnome
         ];
+
+        # Colmena deployment:
+        deployment = {
+          targetHost = "evil.lan";
+          targetUser = "byte";
+        };
       };
 
-      homeConfigurations = n9.lib.home self "byte" {
+      homeConfigurations = n9.lib.home self "byte" "/abspath/to/passwd" {
         packages = [ "jetbrains.clion" ];
         modules = with n9.lib.home-modules; [
           editor.helix
           shell.fish
         ];
+        deployment.keys = n9.lib.utils.sshKey "/abspath/to/ssh_key";
       };
     };
 }

@@ -9,18 +9,23 @@
 # Make NixOS, with disk, bootloader, networking, hostname, etc.
 # Switched from `nixosSystem` to `colmenaHive`, for my own flaver (the colmena
 # has both remote and local deployment, which is quite nice).
+# TODO: Revert using `nixosSystem` when there's no deployment?
+#
 # @input that: Flake `self` of the modules.
 # @input modules: To nixosSystem.
 # @input packages: Shortcut.
-# @input deploy: Where you want to deploy?
+# @input deployment: Where you want to deploy?
+#
 # @output: AttrSet of ${hostName} of ${that}.
-# TODO: Revert using `nixosSystem` when there's no deployment?
+#
+# Notice, the deployment.keys are uploaded, it means it can't survive next
+# reboot if you're using the default option to upload to /run/keys.
 that: hostName: system: # <- Module arguments
 
 {
   modules,
   packages ? [ ],
-  deploy ? { },
+  deployment ? { },
 }: # <- NixOS `nixosSystem {}` (Hmm, not really)
 
 let
@@ -30,12 +35,12 @@ let
   nodeNixpkgs = nixpkgs.legacyPackages.${system};
   hostId = builtins.substring 63 8 (builtins.hashString "sha512" hostName);
   hasHome = that ? homeConfigurations;
-  deployment = nixpkgs.lib.recursiveUpdate {
+  combined = nixpkgs.lib.recursiveUpdate {
     allowLocalDeployment = true;
     keys = lib.optionalAttrs hasHome (
-      lib.fold (a: b: a.deploy.keys // b) { } (lib.attrValues that.homeConfigurations)
+      lib.fold (a: b: a.deployment.keys // b) { } (lib.attrValues that.homeConfigurations)
     );
-  } deploy;
+  } deployment;
 in
 colmena.lib.makeHive {
   meta = {
@@ -46,8 +51,6 @@ colmena.lib.makeHive {
   };
 
   ${hostName} = {
-    inherit deployment;
-
     imports =
       [
         (import ../pkgs/nixpkgs.nix args)
@@ -153,5 +156,7 @@ colmena.lib.makeHive {
         ]
       ))
       ++ modules;
+
+    deployment = combined;
   };
 }

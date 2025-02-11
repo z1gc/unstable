@@ -11,9 +11,9 @@
 #                  Due to this restriction, this should be array of strings.
 #                  For other packages, you might need to write a module.
 # @input modules: Imports from.
-# @input deploy: Additional arguments to deployer, currently supports keys.
+# @input deployment: Additional arguments to deployer, currently supports keys.
 #
-# @output: AttrSet of ${username} = {uid,home,config,passwd,deploy}.
+# @output: AttrSet of ${username} = {uid,home,config,passwd,deployment}.
 # Using if/else here because we want to maintain a consistency of dev's flake.
 that: username: passwd: # <- Module arguments
 
@@ -22,7 +22,7 @@ that: username: passwd: # <- Module arguments
   home ? "/home/${username}",
   packages ? [ ],
   modules ? [ ],
-  deploy ? {
+  deployment ? {
     keys = { };
   },
 }: # <- NixOS or HomeManager configurations (kind of)
@@ -67,19 +67,19 @@ let
     };
   };
 
-  deployment.keys =
+  combined.keys =
     # User provided:
     (builtins.mapAttrs (
       _: v:
       v
-      // lib.optionalAttrs (v ? destDir && (lib.strings.hasPrefix "@HOME@" v.destDir)) {
+      // lib.optionalAttrs (lib.strings.hasPrefix "@HOME@" (v.destDir or "")) {
         destDir = home + (lib.strings.removePrefix "@HOME@" v.destDir);
       }
       // {
         user = username;
         group = username;
       }
-    ) deploy.keys)
+    ) deployment.keys)
     # Password argument:
     // {
       "passwd-${username}" = {
@@ -96,6 +96,6 @@ in
       config
       ;
     passwd = "/run/keys/passwd-${username}";
-    deploy = deployment;
+    deployment = combined;
   };
 }
