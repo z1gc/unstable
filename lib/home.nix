@@ -7,19 +7,21 @@
 # @input passwd: The absolute path to passwd file, in colmena.
 # @input uid,home,groups: Information about the user.
 #                         Group's name and gid is same as the username and uid.
+# @input authorizedKeys: SSH keys for authorizing.
 # @input packages: Shortcut of home.packages, within the imports context.
 #                  Due to this restriction, this should be array of strings.
 #                  For other packages, you might need to write a module.
 # @input modules: Imports from.
 # @input deployment: Additional arguments to deployer, currently supports keys.
 #
-# @output: AttrSet of ${username} = {uid,home,config,passwd,deployment}.
+# @output: AttrSet of {user,group,config,deployment}.
 # Using if/else here because we want to maintain a consistency of dev's flake.
 that: username: passwd: # <- Module arguments
 
 {
   uid ? 1000,
   home ? "/home/${username}",
+  authorizedKeys ? [ ],
   groups ? [ ],
   packages ? [ ],
   modules ? [ ],
@@ -92,13 +94,17 @@ let
 in
 {
   ${that.colmenaHive.passthru.hostName}.${username} = {
-    inherit
-      uid
-      home
-      groups
-      config
-      ;
-    passwd = "/run/keys/passwd-${username}";
+    user = {
+      isNormalUser = true;
+      inherit uid home;
+      group = username;
+      extraGroups = [ "wheel" ] ++ groups;
+      hashedPasswordFile = "/run/keys/passwd-${username}";
+      openssh.authorizedKeys.keys = authorizedKeys;
+    };
+    group.gid = uid;
+
+    inherit config;
     deployment = combined;
   };
 }

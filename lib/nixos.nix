@@ -133,10 +133,8 @@ in
         (lib.mapAttrsToList (
           username:
           {
-            uid,
-            home,
-            groups,
-            passwd,
+            user,
+            group,
             config,
             ...
           }:
@@ -144,17 +142,8 @@ in
           assert lib.assertMsg (username != "root") "can't manage root!";
           {
             users = {
-              groups.${username} = {
-                gid = uid;
-              };
-
-              users.${username} = {
-                isNormalUser = true;
-                inherit uid home;
-                group = username;
-                extraGroups = [ "wheel" ] ++ groups;
-                hashedPasswordFile = passwd;
-              };
+              groups.${username} = group;
+              users.${username} = user;
             };
 
             home-manager.users.${username} = config;
