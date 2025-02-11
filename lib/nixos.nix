@@ -47,14 +47,14 @@ let
     );
   } deployment;
 in
-(if !bulk then colmena.lib.makeHive else lib.id) {
+{
   # For home.nix, n9 requires one-to-one configuration, can only have 1 host:
   passthru = {
     # inherit system;
     inherit hostName;
   };
 }
-// {
+// (if !bulk then colmena.lib.makeHive else lib.id) {
   meta = {
     nixpkgs = nodeNixpkgs;
     nodeNixpkgs.${hostName} = nodeNixpkgs;
