@@ -5,8 +5,8 @@
 # @input that: Flake `self` of the modules.
 # @input username: The username of it.
 # @input passwd: The absolute path to passwd file, in colmena.
-# @input uid,home: Information about the user.
-#                  The group's info is same as the user.
+# @input uid,home,groups: Information about the user.
+#                         Group's name and gid is same as the username and uid.
 # @input packages: Shortcut of home.packages, within the imports context.
 #                  Due to this restriction, this should be array of strings.
 #                  For other packages, you might need to write a module.
@@ -20,6 +20,7 @@ that: username: passwd: # <- Module arguments
 {
   uid ? 1000,
   home ? "/home/${username}",
+  groups ? [ ],
   packages ? [ ],
   modules ? [ ],
   deployment ? {
@@ -93,6 +94,7 @@ in
     inherit
       uid
       home
+      groups
       config
       ;
     passwd = "/run/keys/passwd-${username}";

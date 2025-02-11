@@ -135,6 +135,7 @@ in
           {
             uid,
             home,
+            groups,
             passwd,
             config,
             ...
@@ -151,7 +152,7 @@ in
                 isNormalUser = true;
                 inherit uid home;
                 group = username;
-                extraGroups = [ "wheel" ];
+                extraGroups = [ "wheel" ] ++ groups;
                 hashedPasswordFile = passwd;
               };
             };
