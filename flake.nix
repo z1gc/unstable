@@ -35,6 +35,7 @@
         disk.zfs = disk args "zfs";
         disk.btrfs = disk args "btrfs";
         desktop.gnome = importArgs ./nixos/desktop/gnome.nix;
+        auth.ssh-agent = importArgs ./nixos/auth/ssh-agent.nix;
       };
 
       # User/home level modules, with home-manager:
