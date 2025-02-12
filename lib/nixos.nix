@@ -87,8 +87,18 @@ let
           services.openssh = {
             enable = true;
             ports = [ 22 ];
+            authorizedKeysFiles = [ "/etc/ssh/agent_keys.d/%u" ];
           };
           networking.firewall.allowedTCPPorts = [ 22 ];
+
+          # Fine-gran control of which user can use PAM to authorize things.
+          security.pam = {
+            sshAgentAuth = {
+              enable = true;
+              authorizedKeysFiles = [ "/etc/ssh/agent_keys.d/%u" ];
+            };
+            services.sudo.sshAgentAuth = true;
+          };
         }
       )
 
@@ -108,7 +118,7 @@ let
           config,
           ...
         }:
-        args:
+        # { pkgs, ... }:
         assert lib.assertMsg (username != "root") "can't manage root!";
         {
           users = {
@@ -123,6 +133,51 @@ let
         { users.users.root.hashedPassword = "!"; }
       ]
     ))
+    ++ (lib.optionals (deployment ? targetUser && deployment ? targetKey) [
+      (
+        { pkgs, ... }:
+        let
+          user = deployment.targetUser;
+          uid = 27007;
+          allow = command: {
+            inherit command;
+            options = [ "SETENV" ];
+          };
+          store = "/nix/store/[[\\:alnum\\:]-.]*";
+        in
+        {
+          users.groups.${user}.gid = uid;
+          users.users.${user} = {
+            isSystemUser = true;
+            inherit uid;
+            group = user;
+            shell = pkgs.bash;
+            hashedPassword = "!";
+          };
+
+          environment.etc."ssh/agent_keys.d/${user}" = {
+            text = deployment.targetKey;
+            mode = "0644";
+          };
+          security.sudo.extraRules = [
+            {
+              users = [ deployment.targetUser ];
+              runAs = "root";
+              commands = [
+                # FIXME: Restrict using systemd-run or other sandboxie?
+                (allow "/run/current-system/sw/bin/sh -c *")
+                (allow "/run/current-system/sw/bin/nix-env --profile /nix/var/nix/profiles/system --set ${store}")
+                (allow "${store}/bin/switch-to-configuration switch")
+
+                # For buildOnTarget == true:
+                (allow "/run/current-system/sw/bin/nix-store --no-gc-warning --realise ${store}")
+              ];
+            }
+          ];
+          nix.settings.trusted-users = [ user ];
+        }
+      )
+    ])
     ++ modules;
 
   combined = nixpkgs.lib.recursiveUpdate {
@@ -130,7 +185,7 @@ let
     keys = lib.optionalAttrs hasHome (
       lib.fold (a: b: a.deployment.keys // b) { } (lib.attrValues homeConfig)
     );
-  } deployment;
+  } (builtins.removeAttrs deployment [ "targetKey" ]);
 in
 {
   # For home.nix, n9 requires one-to-one configuration, can only have 1 host:
@@ -156,7 +211,6 @@ in
       };
     }
   else
-    # TODO: Assert deployment shouldn't exist.
     {
       "${hostName}" = lib.nixosSystem {
         inherit system;

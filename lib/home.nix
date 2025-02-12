@@ -101,6 +101,7 @@ let
 in
 {
   ${that.colmenaHive.passthru.hostName}.${username} = {
+    group.gid = uid;
     user = {
       isNormalUser = true;
       inherit uid home;
@@ -109,7 +110,6 @@ in
       hashedPasswordFile = "/run/keys/passwd-${username}";
       openssh.authorizedKeys.keys = authorizedKeys;
     };
-    group.gid = uid;
 
     inherit config;
     deployment = combined;
