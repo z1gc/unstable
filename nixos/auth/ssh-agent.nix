@@ -17,6 +17,5 @@ programs: # <- Module arguments
       }
       // b
     ) { } programs;
-    # services.sudo.sshAgentAuth = true;
   };
 }
