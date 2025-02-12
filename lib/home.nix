@@ -59,6 +59,12 @@ let
               bpftrace
             ]
             ++ (map (utils.attrByIfStringPath pkgs) packages);
+
+          services.ssh-agent.enable = true;
+          programs.ssh = {
+            enable = true;
+            addKeysToAgent = "yes";
+          };
         }
       )
     ] ++ modules;

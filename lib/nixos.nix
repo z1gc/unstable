@@ -125,8 +125,9 @@ in
 
         home-manager.nixosModules.home-manager
         {
-          home-manager.useGlobalPkgs = true;
+          # https://discourse.nixos.org/t/users-users-name-packages-vs-home-manager-packages/22240/2
           home-manager.useUserPackages = true;
+          home-manager.useGlobalPkgs = true;
         }
       ]
       ++ (lib.optionals hasHome (
